@@ -1,0 +1,39 @@
+[project]
+name = "activity-database"
+version = "0.1.0"
+description = "Activity Database Chatbot"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+
+# Main backend dependencies
+dependencies = [
+    "boto3",
+    "requests",
+    "openai",
+    "python-dotenv",
+]
+
+[dependency-groups]
+
+# CDK infrastructure dependencies
+cdk = [
+    "aws-cdk-lib",
+    "constructs"
+]
+
+# Mock OpenAI API dependencies
+mock-openai = [
+    "flask",
+    "pyyaml",
+]
+
+# Development and testing dependencies
+dev = [
+    "pytest",
+]
+
+mock-server = [
+    "flask>2.0",
+    "flask-cors>=6.0.1",
+    "werkzeug>=2.0,<3.0"
+]
