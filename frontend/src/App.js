@@ -6,8 +6,8 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Activity Search Chatbot</h1>
-        <p>Ask about activities in natural language</p>
+        <h1>Buď aktivní - Chatbot </h1>
+        <p>Najdi aktivity na základě svých zájmů</p>
       </header>
       
       <main className="app-main">
@@ -15,7 +15,7 @@ function App() {
       </main>
       
       <footer className="app-footer">
-        <p>&copy; {new Date().getFullYear()} Activity Database | Powered by AI</p>
+        <p>&copy; {new Date().getFullYear()} Buď aktivní - Chatbot | Využívá AI</p>
       </footer>
     </div>
   );

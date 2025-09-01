@@ -3,6 +3,7 @@ import os
 import logging
 import openai
 import sys
+import httpx
 sys.path.append('/var/task')
 from utils import build_api_response
 
@@ -10,8 +11,10 @@ from utils import build_api_response
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Configure OpenAI API
-openai.api_key = os.environ.get('OPENAI_API_KEY')
+client = openai.OpenAI(
+    base_url=os.environ.get("OPENAI_API_URL"),
+    api_key=os.environ.get('OPENAI_API_KEY'),
+)
 
 def enhance_results(query, activities):
     """
@@ -19,44 +22,43 @@ def enhance_results(query, activities):
     """
     try:
         if not activities or len(activities) == 0:
-            return "I couldn't find any activities matching your search. Try using different keywords."
+            return "Nenašel jsem žádné aktivity odpovídající vašemu vyhledávání. Zkuste použít jiná klíčová slova."
         
         # Build a prompt for OpenAI
         prompt = f"""
-        The user asked: "{query}"
+        Uživatel se zeptal na: "{query}"
         
-        I found these activities that might interest them:
+        Našel/a jsem tyto aktivity, které by je mohly zajímat:
         """
         
         # Add each activity to the prompt
         for i, activity in enumerate(activities):
             prompt += f"""
             {i+1}. {activity['title']} - {activity['short_description']}
-            Location: {activity['location']}
-            Tags: {', '.join(activity['tags'])}
+            Lokace: {activity['location']}
+            Klíčová slova: {', '.join(activity['tags'])}
             """
         
         prompt += """
-        Generate a friendly, conversational response explaining why these activities match the user's query. 
-        Be concise but highlight key features. Don't list the activities again, just explain why they're a good match.
+        Vypracujte přátelskou, konverzační odpověď s vysvětlením, proč tyto aktivity odpovídají dotazu uživatele. Buďte struční, ale zdůrazněte klíčové vlastnosti. Nevyjmenovávejte aktivity znovu, pouze vysvětlete, proč se k nim hodí.
         """
         
         # Call OpenAI API
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+        response = client.chat.completions.create(
+            model="gpt-5-nano",
             messages=[
-                {"role": "system", "content": "You are a helpful travel and activities assistant."},
+                {"role": "system", "content": "Jste užitečný/á asistent/ka pro radu s volnočasovými aktivitami."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=200,
-            temperature=0.7
+            # max_completion_tokens=200,
+            # temperature=0.7
         )
         
         # Extract and return the response
         return response.choices[0].message.content.strip()
     except Exception as e:
         logger.error(f"Error enhancing results: {str(e)}")
-        return "Here are some activities that match your search. Let me know if you'd like more information about any of them."
+        return "Zde je několik aktivit, které odpovídají vašemu vyhledávání. Dejte mi vědět, pokud byste o některé z nich chtěli více informací."
 
 def lambda_handler(event, context):
     """

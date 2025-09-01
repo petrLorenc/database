@@ -28,15 +28,11 @@ s3_client = boto3.client(
     region_name=os.environ.get('AWS_REGION', 'us-east-1'),
 )
 
-# Configure environment for Lambda functions
-os.environ['OPENAI_API_KEY'] = os.environ.get('OPENAI_API_KEY', 'dummy-key')
-os.environ['ACTIVITIES_BUCKET_NAME'] = os.environ.get('ACTIVITIES_BUCKET_NAME', 'activities')
-
 # Function to import a lambda function from a file path
 def import_lambda_function(function_path):
     """Import a lambda function from a file path"""
     module_name = os.path.basename(function_path).replace('.py', '')
-    spec = importlib.util.spec_from_file_location(module_name, function_path)
+    spec = importlib.util.spec_from_file_location(module_name, function_path) 
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
@@ -58,7 +54,8 @@ def process_query():
         
         # Call the query processor Lambda
         response = query_processor(event, {})
-        
+        logger.info(response.get('body', ''))
+
         # Return the response
         return jsonify(json.loads(response.get('body', '{}')))
     except Exception as e:
@@ -76,7 +73,8 @@ def search_activities():
         
         # Call the search engine Lambda
         response = search_engine(event, {})
-        
+        logger.info(response.get('body', ''))
+
         # Return the response
         return jsonify(json.loads(response.get('body', '{}')))
     except Exception as e:
@@ -94,7 +92,8 @@ def enhance_results():
         
         # Call the result enhancer Lambda
         response = result_enhancer(event, {})
-        
+        logger.info(response.get('body', ''))
+
         # Return the response
         return jsonify(json.loads(response.get('body', '{}')))
     except Exception as e:

@@ -43,7 +43,7 @@ const ActivityResult = ({ activity }) => {
           className="activity-expand-button" 
           onClick={toggleExpand}
         >
-          {expanded ? 'Show Less' : 'Show More'}
+          {expanded ? 'Ukaž méně' : 'Ukaž více'}
         </button>
       </div>
     </div>
