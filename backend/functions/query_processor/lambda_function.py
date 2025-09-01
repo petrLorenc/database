@@ -3,6 +3,7 @@ import os
 import logging
 import openai
 import sys
+import httpx
 sys.path.append('/var/task')
 from utils import build_api_response, log_query
 
@@ -10,27 +11,34 @@ from utils import build_api_response, log_query
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Configure OpenAI API
-openai.api_key = os.environ.get('OPENAI_API_KEY')
+client = openai.OpenAI(
+    base_url=os.environ.get("OPENAI_API_URL"),
+    api_key=os.environ.get('OPENAI_API_KEY'),
+)
+
 
 def extract_keywords(query):
     """
     Extract relevant keywords and tags from a user query using OpenAI
     """
     try:
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+        response = client.chat.completions.create(
+            model="gpt-5-nano",
             messages=[
-                {"role": "system", "content": "You are a keyword extraction system. Extract relevant search tags from the user query. Return only a JSON array of lowercase keywords without any explanation."},
-                {"role": "user", "content": f"Extract search keywords from this query: '{query}'"}
+                {"role": "system", "content": "Jsi systém pro extrakci klíčových slov. Extrahuj relevantní vyhledávací tagy z uživatelského dotazu. Vraťte pouze pole klíčových slov (v prvním pádě jednotného čísla) jako JSON pole. Nic více."},
+                {"role": "user", "content": "Extrahujte klíčová slova jako JSON pole (JSON array) pro vyhledávání z tohoto dotazu: 'Chci soutěž v Praze pro studenta střední školy'"},
+                {"role": "user", "content": '["škola", "student", "soutěž", "Praha", "volný čas", "vzdělání"]'},
+                {"role": "user", "content": "Extrahujte klíčová slova jako JSON pole (JSON array) pro vyhledávání z tohoto dotazu: 'Jsem architekt a hledám kurzy na zlepšení svých dovedností v oblasti designu. Jsem z Brna.'"},
+                {"role": "user", "content": '["architekt", "kurzy", "design", "vzdělání", "profesionální rozvoj", "Brno", "jihomoravský kraj"]'},
+                {"role": "user", "content": f"Extrahujte klíčová slova jako JSON pole (JSON array) pro vyhledávání z tohoto dotazu: '{query}'"},
             ],
-            max_tokens=100,
-            temperature=0.3
+            # max_completion_tokens=250,
+            # temperature=0.3
         )
         
         # Extract the response content
         content = response.choices[0].message.content.strip()
-        
+        return content
         # Handle various response formats from GPT
         try:
             # Try parsing if it's a properly formatted JSON array
@@ -47,7 +55,7 @@ def extract_keywords(query):
             extracted_tags = [tag.strip().lower() for tag in content.split(',')]
         
         # Ensure all tags are strings and lowercase
-        extracted_tags = [str(tag).lower() for tag in extracted_tags if tag]
+        extracted_tags = [str(tag).strip().lower() for tag in extracted_tags if tag]
         
         logger.info(f"Extracted tags from query '{query}': {extracted_tags}")
         return extracted_tags

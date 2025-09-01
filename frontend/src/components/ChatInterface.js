@@ -8,7 +8,7 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState([
     { 
       type: 'bot', 
-      text: 'Hello! I can help you find activities based on your interests. What kind of activities are you looking for?' 
+      text: 'Ahoj! Mohu vám pomoci najít aktivity na základě vašich zájmů. Jaké aktivity hledáte?' 
     }
   ]);
   const [loading, setLoading] = useState(false);
@@ -56,7 +56,7 @@ const ChatInterface = () => {
         ...prev, 
         { 
           type: 'bot', 
-          text: 'Sorry, I encountered an error while processing your request. Please try again.' 
+          text: 'Omlouvám se, při zpracování vašeho požadavku došlo k chybě. Zkuste to prosím znovu.' 
         }
       ]);
       
@@ -99,7 +99,7 @@ const ChatInterface = () => {
           className="chat-input"
           value={query}
           onChange={handleQueryChange}
-          placeholder="Ask about activities..."
+          placeholder="Dotaz na aktivity..."
           disabled={loading}
         />
         <button 

@@ -7,7 +7,7 @@ from utils import load_activities_from_s3, build_api_response, log_query
 
 # Configure logging
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # Cache for activities data
 activities_cache = None
@@ -31,6 +31,7 @@ def initialize_cache():
                 if tag not in tag_index:
                     tag_index[tag] = []
                 tag_index[tag].append(i)
+                logger.info(f"Indexed tag '{tag}' for activity ID {activity['id']}")
         
         logger.info(f"Built tag index with {len(tag_index)} unique tags")
 

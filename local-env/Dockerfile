@@ -13,7 +13,7 @@ COPY uv.lock .
 RUN uv venv .venv --no-managed-python
 RUN uv sync --group mock-openai --group mock-server --frozen --no-managed-python
 
-COPY local-dev/mock-openai /app
+COPY local-env /app
 EXPOSE 8080
 
 CMD ["uv", "run", "python", "app.py"]
