@@ -38,7 +38,6 @@ def extract_keywords(query):
         
         # Extract the response content
         content = response.choices[0].message.content.strip()
-        return content
         # Handle various response formats from GPT
         try:
             # Try parsing if it's a properly formatted JSON array

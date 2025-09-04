@@ -14,13 +14,17 @@ const apiClient = axios.create({
 export const chatbotService = {
   /**
    * Send a query to the chatbot API
-   * @param {string} query - The user's natural language query
+   * @param {string} query - The user's current query
+   * @param {Array} messageHistory - The full conversation history
    * @returns {Promise} - Promise resolving to chatbot response
    */
-  async sendQuery(query) {
+  async sendQuery(query, messageHistory = []) {
     try {
       // Step 1: Process the query to extract keywords
-      const processResponse = await apiClient.post('/query', { query });
+      const processResponse = await apiClient.post('/query', { 
+        query,
+        messageHistory 
+      });
       const { extracted_tags } = processResponse.data;
       
       if (!extracted_tags || extracted_tags.length === 0) {

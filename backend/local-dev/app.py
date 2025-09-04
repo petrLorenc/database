@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import boto3
 from dotenv import load_dotenv
+import glob
 
 # Load environment variables from .env file if present
 load_dotenv()
@@ -18,6 +19,10 @@ logger = logging.getLogger(__name__)
 # Create Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
+
+# Get all Python files in the functions directory for extra file watching
+extra_files = glob.glob('/app/backend/functions/**/*.py', recursive=True)
+app.config['EXTRA_FILES'] = extra_files
 
 # Configure S3 client to use Minio
 s3_client = boto3.client(
@@ -38,15 +43,13 @@ def import_lambda_function(function_path):
     spec.loader.exec_module(module)
     return module.lambda_handler
 
-# Import lambda functions
-query_processor = import_lambda_function('functions/query_processor/lambda_function.py')
-search_engine = import_lambda_function('functions/search_engine/lambda_function.py')
-result_enhancer = import_lambda_function('functions/result_enhancer/lambda_function.py')
-
 @app.route('/api/query', methods=['POST'])
 def process_query():
     """Process a user query through the query processor Lambda"""
     try:
+        # Dynamically import the lambda function
+        query_processor = import_lambda_function('/app/backend/functions/query_processor/lambda_function.py')
+        
         # Create a Lambda-like event object
         event = {
             'body': json.dumps(request.json)
@@ -66,6 +69,9 @@ def process_query():
 def search_activities():
     """Search for activities using the search engine Lambda"""
     try:
+        # Dynamically import the lambda function
+        search_engine = import_lambda_function('/app/backend/functions/search_engine/lambda_function.py')
+        
         # Create a Lambda-like event object
         event = {
             'body': json.dumps(request.json)
@@ -85,6 +91,9 @@ def search_activities():
 def enhance_results():
     """Enhance search results using the result enhancer Lambda"""
     try:
+        # Dynamically import the lambda function
+        result_enhancer = import_lambda_function('/app/backend/functions/result_enhancer/lambda_function.py')
+        
         # Create a Lambda-like event object
         event = {
             'body': json.dumps(request.json)
@@ -109,6 +118,11 @@ def chat():
     3. Enhance the results with conversational responses
     """
     try:
+        # Dynamically import all lambda functions
+        query_processor = import_lambda_function('functions/query_processor/lambda_function.py')
+        search_engine = import_lambda_function('functions/search_engine/lambda_function.py')
+        result_enhancer = import_lambda_function('functions/result_enhancer/lambda_function.py')
+        
         # Get the query from the request
         data = request.json
         query = data.get('query', '')
@@ -153,4 +167,4 @@ def health_check():
     return jsonify({'status': 'healthy'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=True, extra_files=app.config['EXTRA_FILES'])

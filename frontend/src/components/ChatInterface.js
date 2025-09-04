@@ -33,8 +33,8 @@ const ChatInterface = () => {
       // Add loading message
       setMessages(prev => [...prev, { type: 'bot', text: '...', loading: true }]);
       
-      // Send query to chatbot service
-      const response = await chatbotService.sendQuery(query);
+      // Send query to chatbot service with full message history
+      const response = await chatbotService.sendQuery(query, messages);
       
       // Remove loading message
       setMessages(prev => prev.filter(msg => !msg.loading));
