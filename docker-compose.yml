@@ -47,6 +47,7 @@ services:
       - "5550:5000"
     volumes:
       - ./backend:/app/backend
+      - ./backend/functions:/app/functions
       - ./data:/app/data
     environment:
       - FLASK_APP=backend/local-dev/app.py

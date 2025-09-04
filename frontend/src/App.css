@@ -22,8 +22,18 @@ body {
 
 .app-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 5px;
   padding: 20px 0;
+}
+
+.logo-container {
+  margin-bottom: 10px;
+}
+
+.app-logo {
+  max-width: 200px;
+  height: auto;
+  margin: auto;
 }
 
 .app-header h1 {
@@ -53,6 +63,17 @@ body {
   border-top: 1px solid #ecf0f1;
 }
 
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .app {
+    padding: 15px;
+  }
+
+  .app-logo {
+    max-width: 180px;
+  }
+}
+
 @media (max-width: 768px) {
   .app {
     padding: 10px;
@@ -64,5 +85,32 @@ body {
   
   .app-header p {
     font-size: 1rem;
+  }
+
+  .app-logo {
+    max-width: 150px;
+  }
+
+  .app-main {
+    height: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .app-logo {
+    max-width: 120px;
+  }
+
+  .app-main {
+    height: 400px;
+  }
+
+  .app-footer {
+    margin-top: 20px;
+    font-size: 0.8rem;
   }
 }
