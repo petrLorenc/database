@@ -10,8 +10,8 @@ variable "s3_bucket_name" {
   default     = "activity-database-chatbot"
 }
 
-variable "openai_api_key_secret_name" {
-  description = "Name of the secret in AWS Secrets Manager storing the OpenAI API key"
+variable "openai_api_key" {
+  description = "OpenAI API key for Lambda functions"
   type        = string
-  default     = "openai-api-key"
+  sensitive   = true  # This ensures the value isn't shown in logs
 }

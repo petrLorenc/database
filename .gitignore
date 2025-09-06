@@ -221,4 +221,18 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# Terraform
+*.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+
 *.pyc
+
+backend/deployments
+.vscode/*
+.~lock.*
+database_dump*
+unique_tags.json
