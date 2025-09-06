@@ -5,7 +5,7 @@ import openai
 import sys
 import httpx
 sys.path.append('/var/task')
-from utils import build_api_response, log_query
+from utils import load_tags_from_s3, build_api_response, log_query
 
 # Configure logging
 logger = logging.getLogger()
@@ -16,6 +16,7 @@ client = openai.OpenAI(
     api_key=os.environ.get('OPENAI_API_KEY'),
 )
 
+tags_cache = load_tags_from_s3()
 
 def extract_keywords(query):
     """
@@ -25,11 +26,11 @@ def extract_keywords(query):
         response = client.chat.completions.create(
             model="gpt-5-nano",
             messages=[
-                {"role": "system", "content": "Jsi systém pro extrakci klíčových slov. Extrahuj relevantní vyhledávací tagy z uživatelského dotazu. Vraťte pouze pole klíčových slov (v prvním pádě jednotného čísla) jako JSON pole. Nic více."},
-                {"role": "user", "content": "Extrahujte klíčová slova jako JSON pole (JSON array) pro vyhledávání z tohoto dotazu: 'Chci soutěž v Praze pro studenta střední školy'"},
-                {"role": "user", "content": '["škola", "student", "soutěž", "Praha", "volný čas", "vzdělání"]'},
+                {"role": "system", "content": f"Jsi systém pro extrakci klíčových slov. Extrahuj relevantní vyhledávací tagy z uživatelského dotazu. Vrať pouze pole klíčových slov (v prvním pádě jednotného čísla) jako JSON pole. Použij výhradně tyto klíčová slova '''{tags_cache['tags']}'''"},
+                {"role": "user", "content": "Extrahujte klíčová slova jako JSON pole (JSON array) pro vyhledávání z tohoto dotazu: 'Chci soutěž v Praze pro studenta střední školy se zájmem o finance.'"},
+                {"role": "assistant", "content": '["finance", "praha", "student sš", "soutěž"]'},
                 {"role": "user", "content": "Extrahujte klíčová slova jako JSON pole (JSON array) pro vyhledávání z tohoto dotazu: 'Jsem architekt a hledám kurzy na zlepšení svých dovedností v oblasti designu. Jsem z Brna.'"},
-                {"role": "user", "content": '["architekt", "kurzy", "design", "vzdělání", "profesionální rozvoj", "Brno", "jihomoravský kraj"]'},
+                {"role": "assistant", "content": '["kultura", "kurz", "architektura", "jihomoravský kraj"]'},
                 {"role": "user", "content": f"Extrahujte klíčová slova jako JSON pole (JSON array) pro vyhledávání z tohoto dotazu: '{query}'"},
             ],
             # max_completion_tokens=250,
