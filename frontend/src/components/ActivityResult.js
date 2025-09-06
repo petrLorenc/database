@@ -27,9 +27,12 @@ const ActivityResult = ({ activity }) => {
       </div>
       
       <div className="activity-content">
-        <p className="activity-description">
-          {expanded ? activity.long_description : activity.short_description}
-        </p>
+        <div 
+          className="activity-description"
+          dangerouslySetInnerHTML={{
+            __html: expanded ? activity.long_description : activity.short_description
+          }}
+        />
         
         <div className="activity-tags">
           {activity.tags.map((tag, index) => (

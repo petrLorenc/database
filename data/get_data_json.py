@@ -8,9 +8,9 @@ from unidecode import unidecode
 LIMIT = -1  # for test purposes, -1 for all
 
 # Path to the CSV file
-csv_file_path = "database_dump.csv"
+csv_file_path = "database_dump_6_9_2025.csv"
 
-# Fields to extract
+# Fields to extract, first is the original name, second is the new name
 fields_to_extract = [
     ("Jméno", "name"),
     ("Popis", "description"),
@@ -76,13 +76,13 @@ for idx, page in enumerate(result):
     if "/" in id_name or len(id_name) == 0:
         continue
 
-    tags: list = list(page["tags"].values())
+    tags: list = [w.strip().lower() for value in page["tags"].values() for w in value.split(", ")]
     title = page["name_clean"]
     description = page["description"]
     subtitle = page["description_clean"][:120]
-    tags_from_description = set(map(lambda x: x.lower().strip(".[](), "), filter(lambda x: "/" not in x and ">" not in x and "<" not in x and x.isalpha(), description.split(" "))))
-    tags_unique = tags_unique | tags_from_description
-    tags.extend(tags_from_description)
+    # tags_from_description = set(map(lambda x: x.lower().strip(".[](), "), filter(lambda x: "/" not in x and ">" not in x and "<" not in x and x.isalpha(), description.split(" "))))
+    tags_unique = tags_unique | set(tags)
+    # tags.extend(tags_from_description)
 
     clean_json.append(
         {
@@ -94,7 +94,7 @@ for idx, page in enumerate(result):
             "thumbnail_url": "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
             "created_at": "2025-01-15T12:00:00Z",
             "updated_at": "2025-06-20T14:30:00Z",
-            "location": tags["Místo"] if "Místo" in tags else "Česká republika",
+            "location": "Česká republika",
         }
     )
     print(clean_json[-1])
@@ -109,5 +109,16 @@ with open("activities_real.json", "w", encoding="utf-8") as f:
             "totalActivities": len(clean_json),
         },
         "activities": clean_json,
+    }
+    f.write(json.dumps(output, ensure_ascii=False, indent=4))
+
+with open("unique_tags.json", "w", encoding="utf-8") as f:
+    output = {
+        "metadata": {
+            "version": "1.0.0",
+            "lastUpdated": "2025-08-30T12:00:00Z",
+            "totalActivities": len(tags_unique),
+        },
+        "tags": list(tags_unique),
     }
     f.write(json.dumps(output, ensure_ascii=False, indent=4))

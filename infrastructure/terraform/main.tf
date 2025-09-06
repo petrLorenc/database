@@ -1,19 +1,5 @@
 # Main Terraform configuration file for Activity Database Chatbot
 
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-  }
-  required_version = ">= 1.0.0"
-}
-
-provider "aws" {
-  region = var.aws_region
-}
-
 # S3 Bucket for static website and activities data
 resource "aws_s3_bucket" "activity_bucket" {
   bucket = var.s3_bucket_name
@@ -56,7 +42,18 @@ resource "aws_s3_bucket_acl" "activity_bucket_acl" {
   acl    = "private"
 }
 
+# Configure S3 bucket to allow public access
+resource "aws_s3_bucket_public_access_block" "activity_bucket_public_access" {
+  bucket = aws_s3_bucket.activity_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
 resource "aws_s3_bucket_policy" "activity_bucket_policy" {
+  depends_on = [aws_s3_bucket_public_access_block.activity_bucket_public_access]
   bucket = aws_s3_bucket.activity_bucket.id
   policy = jsonencode({
     Version = "2012-10-17"
@@ -119,19 +116,6 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
   }
 }
 
-# Secrets Manager for OpenAI API Key
-resource "aws_secretsmanager_secret" "openai_api_key" {
-  name        = var.openai_api_key_secret_name
-  description = "OpenAI API Key for Activity Database Chatbot"
-}
-
-resource "aws_secretsmanager_secret_version" "openai_api_key_value" {
-  secret_id     = aws_secretsmanager_secret.openai_api_key.id
-  secret_string = jsonencode({
-    OPENAI_API_KEY = "your-api-key-placeholder"
-  })
-}
-
 # IAM Role for Lambda Functions
 resource "aws_iam_role" "lambda_execution_role" {
   name = "activity_database_lambda_role"
@@ -176,32 +160,30 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_access_attachment" {
   policy_arn = aws_iam_policy.lambda_s3_access.arn
 }
 
-resource "aws_iam_policy" "lambda_secrets_access" {
-  name        = "activity_database_lambda_secrets_access"
-  description = "Allow Lambda functions to access Secrets Manager"
-  
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = "secretsmanager:GetSecretValue"
-        Resource = aws_secretsmanager_secret.openai_api_key.arn
-      }
-    ]
-  })
+# Lambda deployment packages
+data "archive_file" "query_processor_zip" {
+  type        = "zip"
+  source_file = "${path.module}/../../backend/deployments/query_processor.zip"
+  output_path = "${path.module}/../../backend/deployments/query_processor_deploy.zip"
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_secrets_access_attachment" {
-  role       = aws_iam_role.lambda_execution_role.name
-  policy_arn = aws_iam_policy.lambda_secrets_access.arn
+data "archive_file" "search_engine_zip" {
+  type        = "zip"
+  source_file = "${path.module}/../../backend/deployments/search_engine.zip"
+  output_path = "${path.module}/../../backend/deployments/search_engine_deploy.zip"
+}
+
+data "archive_file" "result_enhancer_zip" {
+  type        = "zip"
+  source_file = "${path.module}/../../backend/deployments/result_enhancer.zip"
+  output_path = "${path.module}/../../backend/deployments/result_enhancer_deploy.zip"
 }
 
 # Lambda Functions
 resource "aws_lambda_function" "query_processor_function" {
   function_name = "activity-database-query-processor"
-  s3_bucket     = aws_s3_bucket.activity_bucket.id
-  s3_key        = "lambda/query_processor.zip"
+  filename      = data.archive_file.query_processor_zip.output_path
+  source_code_hash = data.archive_file.query_processor_zip.output_base64sha256
   role          = aws_iam_role.lambda_execution_role.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.9"
@@ -210,7 +192,7 @@ resource "aws_lambda_function" "query_processor_function" {
   
   environment {
     variables = {
-      OPENAI_API_KEY_SECRET = aws_secretsmanager_secret.openai_api_key.name
+      OPENAI_API_KEY = var.openai_api_key # We'll define this variable
     }
   }
   
@@ -222,8 +204,8 @@ resource "aws_lambda_function" "query_processor_function" {
 
 resource "aws_lambda_function" "search_engine_function" {
   function_name = "activity-database-search-engine"
-  s3_bucket     = aws_s3_bucket.activity_bucket.id
-  s3_key        = "lambda/search_engine.zip"
+  filename      = data.archive_file.search_engine_zip.output_path
+  source_code_hash = data.archive_file.search_engine_zip.output_base64sha256
   role          = aws_iam_role.lambda_execution_role.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.9"
@@ -245,8 +227,8 @@ resource "aws_lambda_function" "search_engine_function" {
 
 resource "aws_lambda_function" "result_enhancer_function" {
   function_name = "activity-database-result-enhancer"
-  s3_bucket     = aws_s3_bucket.activity_bucket.id
-  s3_key        = "lambda/result_enhancer.zip"
+  filename      = data.archive_file.result_enhancer_zip.output_path
+  source_code_hash = data.archive_file.result_enhancer_zip.output_base64sha256
   role          = aws_iam_role.lambda_execution_role.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.9"
@@ -255,7 +237,7 @@ resource "aws_lambda_function" "result_enhancer_function" {
   
   environment {
     variables = {
-      OPENAI_API_KEY_SECRET = aws_secretsmanager_secret.openai_api_key.name
+      OPENAI_API_KEY = var.openai_api_key
     }
   }
   
@@ -295,7 +277,7 @@ resource "aws_api_gateway_method" "process_query_method" {
   rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
   resource_id   = aws_api_gateway_resource.process_query_resource.id
   http_method   = "POST"
-  authorization_type = "NONE"
+  authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "process_query_integration" {
@@ -311,7 +293,7 @@ resource "aws_api_gateway_method" "search_method" {
   rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
   resource_id   = aws_api_gateway_resource.search_resource.id
   http_method   = "POST"
-  authorization_type = "NONE"
+  authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "search_integration" {
@@ -327,7 +309,7 @@ resource "aws_api_gateway_method" "enhance_method" {
   rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
   resource_id   = aws_api_gateway_resource.enhance_resource.id
   http_method   = "POST"
-  authorization_type = "NONE"
+  authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "enhance_integration" {
@@ -376,18 +358,3 @@ resource "aws_lambda_permission" "result_enhancer_permission" {
   source_arn    = "${aws_api_gateway_rest_api.api_gateway.execution_arn}/*/*/enhance"
 }
 
-# Outputs
-output "website_url" {
-  description = "URL for the S3 website"
-  value       = aws_s3_bucket_website_configuration.activity_bucket_website.website_endpoint
-}
-
-output "cloudfront_distribution_domain_name" {
-  description = "Domain name for the CloudFront distribution"
-  value       = aws_cloudfront_distribution.cloudfront_distribution.domain_name
-}
-
-output "api_endpoint" {
-  description = "API Gateway endpoint URL"
-  value       = "${aws_api_gateway_deployment.api_deployment.invoke_url}"
-}
