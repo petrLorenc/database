@@ -40,14 +40,14 @@ def enhance_results(query, activities):
             """
         
         prompt += """
-        Vypracujte přátelskou, konverzační odpověď s vysvětlením, proč tyto aktivity odpovídají dotazu uživatele. Buďte struční, ale zdůrazněte klíčové vlastnosti. Nevyjmenovávejte aktivity znovu, pouze vysvětlete, proč se k nim hodí.
+        Vypracujte přátelskou, konverzační a krátkou odpověď s vysvětlením, proč tyto aktivity odpovídají dotazu uživatele. 
         """
         
         # Call OpenAI API
         response = client.chat.completions.create(
             model="gpt-5-nano",
             messages=[
-                {"role": "system", "content": "Jste užitečný/á asistent/ka pro radu s volnočasovými aktivitami."},
+                {"role": "system", "content": "Jste užitečný/á asistent/ka pro radu s volnočasovými aktivitami. Buď stručný (maxinum 100 slov), ale zdůrazni klíčové vlastnosti. Nevyjmenovávejte aktivity znovu, pouze vysvětlete, proč se k nim hodí."},
                 {"role": "user", "content": prompt}
             ],
             # max_completion_tokens=200,
