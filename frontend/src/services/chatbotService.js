@@ -1,15 +1,36 @@
 import axios from 'axios';
 
-// Base URL for API calls - will be replaced with actual API Gateway URL in production
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.example.com/dev';
+// Runtime config loader: fetch /config.json at app startup (served from the same host)
+// Falls back to REACT_APP_API_BASE_URL (build-time) or a safe default if config.json isn't available.
+let runtimeConfig = null;
 
-// Create axios instance with default config
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json'
+async function loadRuntimeConfig() {
+  if (runtimeConfig) return runtimeConfig;
+  try {
+    const res = await fetch('/config.json', { cache: 'no-cache' });
+    if (res.ok) {
+      runtimeConfig = await res.json();
+    } else {
+      // fallback to environment variable embedded at build time or a default
+      runtimeConfig = { API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://api.example.com/dev' };
+    }
+  } catch (err) {
+    runtimeConfig = { API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://api.example.com/dev' };
   }
-});
+  return runtimeConfig;
+}
+
+// Create an axios instance after loading runtime config. We recreate the client lazily so
+// the app can change config.json in production without rebuilding.
+async function getApiClient() {
+  const cfg = await loadRuntimeConfig();
+  return axios.create({
+    baseURL: cfg.API_BASE_URL,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
 
 export const chatbotService = {
   /**
@@ -20,8 +41,9 @@ export const chatbotService = {
    */
   async sendQuery(query, messageHistory = []) {
     try {
+      const client = await getApiClient();
       // Step 1: Process the query to extract keywords
-      const processResponse = await apiClient.post('/query', { 
+      const processResponse = await client.post('/process-query', { 
         query,
         messageHistory 
       });
@@ -32,7 +54,7 @@ export const chatbotService = {
       }
       
       // Step 2: Search for activities based on the extracted tags
-      const searchResponse = await apiClient.post('/search', { 
+      const searchResponse = await client.post('/search', { 
         query, 
         tags: extracted_tags,
         max_results: 3
@@ -41,7 +63,7 @@ export const chatbotService = {
       const { results } = searchResponse.data;
       
       // Step 3: Enhance the results with a conversational response
-      const enhanceResponse = await apiClient.post('/enhance', {
+      const enhanceResponse = await client.post('/enhance', {
         query,
         results
       });
@@ -61,7 +83,8 @@ export const chatbotService = {
    */
   async logFeedback(queryId, helpful) {
     try {
-      return await apiClient.post('/feedback', { queryId, helpful });
+      const client = await getApiClient();
+      return await client.post('/feedback', { queryId, helpful });
     } catch (error) {
       console.error('Error logging feedback:', error);
       // Don't throw error for feedback logging
