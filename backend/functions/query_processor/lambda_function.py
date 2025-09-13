@@ -5,8 +5,7 @@ import sys
 
 import openai
 
-sys.path.append("/var/task")
-from utils import load_tags_from_s3, build_api_response, log_query
+from utils import load_tags_from_s3, build_api_response, log_query, handle_options
 
 # Configure logging
 logger = logging.getLogger()
@@ -91,6 +90,8 @@ def lambda_handler(event, context):
     """
     Lambda handler for the query processor
     """
+    if event.get("httpMethod") == "OPTIONS":
+        return handle_options()
     try:
         # Parse the incoming request
         body = json.loads(event.get("body", "{}"))

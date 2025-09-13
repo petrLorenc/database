@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "project_name" {
+  description = "Name of the project, used for resource naming"
+  type        = string
+  default     = "activity-database"
+}
+
 variable "s3_bucket_name" {
   description = "Name of the S3 bucket for storing static website files and activities data"
   type        = string

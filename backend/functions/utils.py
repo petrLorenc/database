@@ -56,17 +56,25 @@ def load_tags_from_s3():
         return {"metadata": {"version": "error", "totalActivities": 0}, "tags": []}
 
 
+def get_cors_headers():
+    return {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+    }
+
+
+def handle_options():
+    return {"statusCode": 200, "headers": get_cors_headers(), "body": ""}
+
+
 def build_api_response(status_code, body):
     """
     Helper function to build a properly formatted API Gateway response
     """
     return {
         "statusCode": status_code,
-        "headers": {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",  # For CORS support
-            "Access-Control-Allow-Credentials": True,
-        },
+        "headers": get_cors_headers(),
         "body": json.dumps(body),
     }
 

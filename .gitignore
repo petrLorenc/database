@@ -236,3 +236,6 @@ backend/deployments
 .~lock.*
 database_dump*
 unique_tags.json
+
+frontend/node_modules
+frontend/build

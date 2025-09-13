@@ -1,47 +1,28 @@
+#!/bin/bash
+
+# Create temporary directories
+mkdir -p deployments
+mkdir -p python  # For Lambda layer
+
+# Install dependencies to python directory (for Lambda layer)
 uv pip install \
    --no-installer-metadata \
    --no-compile-bytecode \
    --python-platform x86_64-manylinux2014 \
-   --python 3.13 \
-   --target packages \
+   --python 3.10 \
+   --target python \
    -r requirements.txt
 
-# query_processor.zip will contain:
-cd packages
-zip -r ../query_processor.zip .
-cd ..
+cp ./functions/utils.py python/utils.py
 
-cd functions/query_processor
-zip -r ../../query_processor.zip lambda_function.py
-cd ..
-zip -r ../query_processor.zip utils.py
-cd ..
+# Create Lambda layer ZIP
+zip -r ./deployments/lambda_layer.zip python/
+# cd ..
 
-# search_engine.zip will contain:
-cd packages
-zip -r ../search_engine.zip .
-cd ..
+# # Create function ZIPs (just the handler code)
+# zip -j deployments/query_processor.zip functions/query_processor/lambda_function.py functions/utils.py
+# zip -j deployments/search_engine.zip functions/search_engine/lambda_function.py functions/utils.py
+# zip -j deployments/result_enhancer.zip functions/result_enhancer/lambda_function.py functions/utils.py
 
-cd functions/search_engine
-zip -r ../../search_engine.zip lambda_function.py
-cd ..
-zip -r ../search_engine.zip utils.py
-cd ..
-
-# result_enhancer.zip will contain:
-cd packages
-zip -r ../result_enhancer.zip .
-cd ..
-
-cd functions/result_enhancer
-zip -r ../../result_enhancer.zip lambda_function.py
-cd ..
-zip -r ../result_enhancer.zip utils.py
-cd ..
-
-# cleanup
-mkdir -p deployments
-mv query_processor.zip deployments/
-mv search_engine.zip deployments/
-mv result_enhancer.zip deployments/
-rm -rf packages
+# Cleanup
+rm -rf python
