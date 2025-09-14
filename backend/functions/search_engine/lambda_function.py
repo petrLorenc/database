@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 
 from utils import load_activities_from_s3, build_api_response, log_query, handle_options
 
@@ -26,9 +25,8 @@ def initialize_cache() -> tuple[dict, dict]:
             if tag not in tag_index:
                 tag_index[tag] = set()
             tag_index[tag].add(i)
-            # logger.info(f"Indexed tag '{tag}' for activity ID {activity['id']}")
 
-        logger.info(f"Built tag index with {len(tag_index)} unique tags")
+    logger.debug(f"{tag_index=}")
     return activities_cache, tag_index
 
 

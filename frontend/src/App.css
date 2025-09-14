@@ -7,8 +7,10 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #fdfdfd;
+  background: linear-gradient(135deg, #667eea 0%, #26edf0 100%);
   color: #333;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .app {
@@ -18,52 +20,105 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  position: relative;
 }
 
 .app-header {
   text-align: center;
-  margin-bottom: 5px;
+  margin: 0 auto 20px auto;
   padding: 20px 0;
-}
-
-.logo-container {
-  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.6s ease-out;
+  max-width: 800px;
+  width: 100%;
 }
 
 .app-logo {
   max-width: 200px;
   height: auto;
   margin: auto;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.app-logo:hover {
+  transform: scale(1.05);
 }
 
 .app-header h1 {
   font-size: 2.5rem;
   margin-bottom: 10px;
-  color: #0682ff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
 }
 
 .app-header p {
   font-size: 1.2rem;
-  color: #62a9ff;
+  color: #6c757d;
+  font-weight: 400;
 }
 
 .app-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 600px;
+  min-height: 0; /* Important for flexbox */
+  animation: fadeInUp 0.6s ease-out 0.2s both;
 }
 
 .app-footer {
-  margin-top: 40px;
+  margin: 20px auto 0 auto;
   padding: 20px 0;
   text-align: center;
   font-size: 0.9rem;
-  color: #95a5a6;
-  border-top: 1px solid #ecf0f1;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  animation: fadeIn 0.6s ease-out 0.4s both;
+  max-width: 800px;
+  width: 100%;
 }
 
-/* Responsive Design */
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile Responsive Design */
 @media (max-width: 1024px) {
   .app {
     padding: 15px;
@@ -72,15 +127,32 @@ body {
   .app-logo {
     max-width: 180px;
   }
+  
+  .app-header {
+    margin-bottom: 15px;
+    padding: 15px;
+  }
 }
 
 @media (max-width: 768px) {
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
   .app {
     padding: 10px;
+    min-height: 100vh;
+  }
+  
+  .app-header {
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 12px;
   }
   
   .app-header h1 {
-    font-size: 1.8rem;
+    font-size: 2rem;
+    margin-bottom: 8px;
   }
   
   .app-header p {
@@ -92,25 +164,148 @@ body {
   }
 
   .app-main {
-    height: 500px;
+    flex: 1;
+    min-height: 0;
+  }
+  
+  .app-footer {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 10px;
   }
 }
 
 @media (max-width: 480px) {
+  .app {
+    padding: 8px;
+  }
+  
+  .app-header {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+  }
+  
   .app-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+  }
+  
+  .app-header p {
+    font-size: 0.9rem;
   }
 
   .app-logo {
     max-width: 120px;
   }
 
-  .app-main {
-    height: 400px;
-  }
-
   .app-footer {
-    margin-top: 20px;
+    margin-top: 10px;
+    padding: 12px;
     font-size: 0.8rem;
+    border-radius: 8px;
+  }
+}
+
+/* Very small screens (landscape phones) */
+@media (max-width: 320px) {
+  .app {
+    padding: 5px;
+  }
+  
+  .app-header h1 {
+    font-size: 1.4rem;
+  }
+  
+  .app-logo {
+    max-width: 100px;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+  .app-header {
+    margin-bottom: 5px;
+    padding: 8px;
+  }
+  
+  .app-header h1 {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+  
+  .app-header p {
+    font-size: 0.85rem;
+  }
+  
+  .app-logo {
+    max-width: 80px;
+  }
+  
+  .app-footer {
+    margin-top: 8px;
+    padding: 8px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .app-header,
+  .app-main,
+  .app-footer,
+  .app-logo {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  }
+  
+  .app-header {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f8f9fa;
+  }
+  
+  .app-header h1 {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .app-header p {
+    color: #ced4da;
+  }
+  
+  .app-footer {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .app-header {
+    background: white;
+    border: 2px solid #000;
+  }
+  
+  .app-header h1 {
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
+    color: #000;
+  }
+  
+  .app-footer {
+    background: white;
+    color: #000;
+    border: 1px solid #000;
   }
 }

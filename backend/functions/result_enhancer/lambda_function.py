@@ -57,7 +57,7 @@ def enhance_results(query, activities):
             # max_completion_tokens=200,
             # temperature=0.7
         )
-
+        logger.debug(f"OpenAI response: {response}")
         # Extract and return the response
         return response.choices[0].message.content.strip()
     except Exception as e:
