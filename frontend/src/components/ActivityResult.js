@@ -43,8 +43,10 @@ const ActivityResult = ({ activity }) => {
         </div>
         
         <button 
-          className="activity-expand-button" 
+          className={`activity-expand-button ${expanded ? 'expanded' : ''}`}
           onClick={toggleExpand}
+          aria-expanded={expanded}
+          aria-label={expanded ? 'Zobrazit méně informací' : 'Zobrazit více informací'}
         >
           {expanded ? 'Ukaž méně' : 'Ukaž více'}
         </button>

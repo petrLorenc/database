@@ -10,8 +10,6 @@ function App() {
         <div className="logo-container">
           <img src={logo} alt="Buď aktivní Logo" className="app-logo" />
         </div>
-        <h1>Chatbot</h1>
-        <p>Najdi aktivity na základě svých zájmů</p>
       </header>
       
       <main className="app-main">

@@ -43,7 +43,7 @@ def import_lambda_function(function_path):
     spec.loader.exec_module(module)
     return module.lambda_handler
 
-@app.route('/api/query', methods=['POST'])
+@app.route('/process-query', methods=['POST'])
 def process_query():
     """Process a user query through the query processor Lambda"""
     try:
@@ -65,7 +65,7 @@ def process_query():
         logger.error(f"Error processing query: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/search', methods=['POST'])
+@app.route('/search', methods=['POST'])
 def search_activities():
     """Search for activities using the search engine Lambda"""
     try:
@@ -87,7 +87,7 @@ def search_activities():
         logger.error(f"Error searching activities: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/enhance', methods=['POST'])
+@app.route('/enhance', methods=['POST'])
 def enhance_results():
     """Enhance search results using the result enhancer Lambda"""
     try:
