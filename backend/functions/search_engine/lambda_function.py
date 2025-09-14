@@ -93,7 +93,7 @@ def lambda_handler(event, context):
     """
     Lambda handler for the search engine
     """
-    if event.get("httpMethod") == "OPTIONS":
+    if event.get("httpMethod") == "OPTIONS" or event.get("routeKey", "").startswith("OPTIONS"):
         return handle_options()
     try:
         # Parse the incoming request

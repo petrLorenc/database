@@ -91,7 +91,7 @@ def lambda_handler(event, context):
     Lambda handler for the query processor
     """
     logger.debug(f"Received event: {event}")
-    if event.get("routeKey").startswith("OPTIONS"):
+    if event.get("httpMethod") == "OPTIONS" or event.get("routeKey", "").startswith("OPTIONS"):
         response = handle_options()
         logger.debug(f"OPTIONS response: {response}")
         return response
