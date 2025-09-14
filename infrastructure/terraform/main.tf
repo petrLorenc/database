@@ -107,7 +107,7 @@ resource "aws_s3_bucket_cors_configuration" "activity_bucket_cors" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET", "HEAD", "POST"]
-    allowed_origins = ["*"] # can restrict later to your domain
+    allowed_origins = ["*"]
     max_age_seconds = 3000
   }
 }
@@ -221,14 +221,13 @@ resource "null_resource" "build_lambda_layer" {
   triggers = {
     requirements_hash = filesha256("${path.module}/../../backend/requirements.txt")
     utils_hash = filesha256("${path.module}/../../backend/functions/utils.py")
-    # if manual rebuild is done
-    zip_hash = filesha256("${path.module}/../../backend/deployments/lambda_layer.zip")
   }
 
   provisioner "local-exec" {
     working_dir = "${path.module}/../../backend"
     command     = "bash create_zip_file.sh"
   }
+  
 }
 
 # Create Lambda Layer for dependencies
@@ -238,8 +237,9 @@ resource "aws_lambda_layer_version" "dependencies" {
   layer_name       = "activity_database_dependencies"
   description      = "Dependencies for Activity Database Lambda functions"
   compatible_runtimes = ["python3.10"]
-
-  source_code_hash = filebase64sha256("${path.module}/../../backend/requirements.txt")
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Lambda: Query Processor
@@ -314,7 +314,7 @@ resource "aws_apigatewayv2_api" "api" {
       "http://localhost:3000",
       "http://localhost:5550"
     ]
-    allow_methods = ["POST", "OPTIONS"]
+    allow_methods = ["POST", "OPTIONS", "GET"]
     allow_headers = ["content-type", "authorization", "x-amz-date", "x-api-key", "x-amz-security-token"]
     expose_headers = ["content-length", "date"]
     max_age       = 300
