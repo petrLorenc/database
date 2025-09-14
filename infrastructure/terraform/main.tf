@@ -63,6 +63,13 @@ resource "aws_s3_object" "frontend_files" {
     length(regexall("\\.[^.]+$", each.key)) > 0 ? regexall("\\.[^.]+$", each.key)[0] : "",
     "application/octet-stream"
   )
+
+  # Add triggers to ensure files are re-uploaded when frontend changes
+  lifecycle {
+    replace_triggered_by = [
+      null_resource.frontend_build
+    ]
+  }
 }
 
 # Runtime config (so frontend can call API dynamically)
@@ -237,8 +244,16 @@ resource "aws_lambda_layer_version" "dependencies" {
   layer_name       = "activity_database_dependencies"
   description      = "Dependencies for Activity Database Lambda functions"
   compatible_runtimes = ["python3.10"]
+  
+  # Add source code hash to detect changes in the layer ZIP
+  source_code_hash = filebase64sha256("${path.module}/../../backend/deployments/lambda_layer.zip")
+  
   lifecycle {
     create_before_destroy = true
+    # Force replacement when the build changes
+    replace_triggered_by = [
+      null_resource.build_lambda_layer
+    ]
   }
 }
 
