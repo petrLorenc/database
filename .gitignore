@@ -235,6 +235,7 @@ backend/deployments
 .vscode/*
 .~lock.*
 database_dump*
+data/database_dump.csv
 unique_tags.json
 
 frontend/node_modules
