@@ -90,8 +90,11 @@ def lambda_handler(event, context):
     """
     Lambda handler for the query processor
     """
-    if event.get("httpMethod") == "OPTIONS":
-        return handle_options()
+    logger.debug(f"Received event: {event}")
+    if event.get("routeKey").startswith("OPTIONS"):
+        response = handle_options()
+        logger.debug(f"OPTIONS response: {response}")
+        return response
     try:
         # Parse the incoming request
         body = json.loads(event.get("body", "{}"))
