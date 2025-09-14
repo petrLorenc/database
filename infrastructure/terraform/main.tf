@@ -253,7 +253,11 @@ resource "aws_lambda_function" "query_processor_function" {
   timeout          = 10
   memory_size      = 256
   environment {
-    variables = { OPENAI_API_KEY = var.openai_api_key }
+    variables = { 
+      OPENAI_API_KEY = var.openai_api_key
+      TAGS_BUCKET_NAME = aws_s3_bucket.activity_bucket.id
+      TAGS_FILE_KEY = "unique_tags.json"
+    }
   }
 
   # Add Lambda Layers for dependencies
@@ -310,9 +314,11 @@ resource "aws_apigatewayv2_api" "api" {
   # ✅ CORS config: allows frontend and local dev to call APIs
   cors_configuration {
     allow_origins = [
+      "http://${aws_s3_bucket_website_configuration.activity_bucket_website.website_endpoint}",
       "https://${aws_s3_bucket_website_configuration.activity_bucket_website.website_endpoint}",
       "http://localhost:3000",
-      "http://localhost:5550"
+      "http://localhost:5550",
+      "*"
     ]
     allow_methods = ["POST", "OPTIONS", "GET"]
     allow_headers = ["content-type", "authorization", "x-amz-date", "x-api-key", "x-amz-security-token"]
@@ -363,9 +369,22 @@ resource "aws_apigatewayv2_route" "search_engine_route" {
   route_key = "POST /search"
   target    = "integrations/${aws_apigatewayv2_integration.search_engine_integration.id}"
 }
+
+resource "aws_apigatewayv2_route" "search_engine_route_options" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "OPTIONS /search"
+  target    = "integrations/${aws_apigatewayv2_integration.search_engine_integration.id}"
+}
+
 resource "aws_apigatewayv2_route" "result_enhancer_route" {
   api_id    = aws_apigatewayv2_api.api.id
   route_key = "POST /enhance"
+  target    = "integrations/${aws_apigatewayv2_integration.result_enhancer_integration.id}"
+}
+
+resource "aws_apigatewayv2_route" "result_enhancer_route_options" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "OPTIONS /enhance"
   target    = "integrations/${aws_apigatewayv2_integration.result_enhancer_integration.id}"
 }
 

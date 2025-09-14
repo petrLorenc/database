@@ -59,8 +59,9 @@ def load_tags_from_s3():
 def get_cors_headers():
     return {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Amz-Date, X-Api-Key, X-Amz-Security-Token",
         "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
+        "Access-Control-Max-Age": "300"
     }
 
 

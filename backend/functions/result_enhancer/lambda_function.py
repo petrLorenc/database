@@ -69,7 +69,7 @@ def lambda_handler(event, context):
     """
     Lambda handler for the result enhancer
     """
-    if event.get("httpMethod") == "OPTIONS":
+    if event.get("httpMethod") == "OPTIONS" or event.get("routeKey", "").startswith("OPTIONS"):
         return handle_options()
     try:
         # Parse the incoming request
