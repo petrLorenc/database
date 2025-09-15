@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import chatbotService from '../services/chatbotService';
 import './ChatInterface.css';
 import ActivityResult from './ActivityResult';
+import analyticsService from '../services/analyticsService';
 
 const ChatInterface = ({ isExpanded, onToggleExpand }) => {
   const [query, setQuery] = useState('');
@@ -12,7 +13,6 @@ const ChatInterface = ({ isExpanded, onToggleExpand }) => {
     }
   ]);
   const [loading, setLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -33,13 +33,15 @@ const ChatInterface = ({ isExpanded, onToggleExpand }) => {
     
     if (!query.trim()) return;
     
+    // Track chat message submission
+    analyticsService.trackChatSubmit(query.trim().length);
+    
     // Add user message to chat
     const userMessage = { type: 'user', text: query, timestamp: Date.now() };
     setMessages(prev => [...prev, userMessage]);
     
     // Show loading state
     setLoading(true);
-    setIsTyping(true);
     
     // Clear input immediately for better UX
     const currentQuery = query;
@@ -56,7 +58,6 @@ const ChatInterface = ({ isExpanded, onToggleExpand }) => {
       
       // Remove typing indicator
       setMessages(prev => prev.filter(msg => !msg.loading));
-      setIsTyping(false);
       
       // Add bot response with slight delay for natural feel
       setTimeout(() => {
@@ -68,12 +69,15 @@ const ChatInterface = ({ isExpanded, onToggleExpand }) => {
         };
         
         setMessages(prev => [...prev, botMessage]);
+        
+        // Track chat response
+        const resultsCount = response.results ? response.results.length : 0;
+        analyticsService.trackChatResponse('Success', resultsCount);
       }, 300);
       
     } catch (error) {
       // Remove typing indicator
       setMessages(prev => prev.filter(msg => !msg.loading));
-      setIsTyping(false);
       
       // Add error message
       setMessages(prev => [
@@ -86,6 +90,9 @@ const ChatInterface = ({ isExpanded, onToggleExpand }) => {
       ]);
       
       console.error('Error querying chatbot:', error);
+      // Track chat error
+      analyticsService.trackError(error.message, 'ChatInterface');
+      analyticsService.trackChatResponse('Error', 0);
     } finally {
       setLoading(false);
       // Focus back to input for better UX
