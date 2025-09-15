@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import ChatInterface from './components/ChatInterface';
 import ActivityPanel from './components/ActivityPanel';
 import logo from './files/image.png';
+import analyticsService from './services/analyticsService';
 
 function App() {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
 
+  // Initialize Google Analytics on app mount
+  useEffect(() => {
+    analyticsService.initialize();
+    analyticsService.trackPageView();
+  }, []);
+
   const toggleChat = () => {
-    setIsChatExpanded(!isChatExpanded);
+    const newExpanded = !isChatExpanded;
+    setIsChatExpanded(newExpanded);
+    analyticsService.trackChatToggle(newExpanded);
   };
 
   return (

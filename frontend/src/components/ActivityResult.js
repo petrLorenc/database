@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import './ActivityResult.css';
+import analyticsService from '../services/analyticsService';
 
 const ActivityResult = ({ activity }) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpand = () => {
-    setExpanded(!expanded);
+    const newExpanded = !expanded;
+    setExpanded(newExpanded);
+    // Track activity result click and expansion
+    analyticsService.trackActivityResultClick(activity.title, 'Chat Interface');
+    if (newExpanded) {
+      analyticsService.trackEvent('Activity Result Expand', 'Chat Interface', activity.title);
+    }
   };
 
   return (

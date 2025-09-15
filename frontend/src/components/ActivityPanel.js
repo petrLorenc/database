@@ -1,5 +1,37 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './ActivityPanel.css';
+import analyticsService from '../services/analyticsService';
+
+// Sample data as fallback - moved outside component to avoid dependency issues
+const sampleActivities = [
+  {
+    id: 1,
+    title: "Středoškolská odborná činnost",
+    tags: ["soutěž", "student sš", "celá čr/online"],
+    short_description: "SOČ je prestižní soutěž pro středoškolské studenty. Ti nejlepší mají možnost pokračovat na zahraniční soutěže.",
+    long_description: "SOČ je prestižní soutěž pro středoškolské studenty. Ti nejlepší mají možnost pokračovat na zahraniční soutěže. Pro řadu účastníků je soutěž počátkem jejich vědecké kariéry.",
+    thumbnail_url: "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
+    location: "Česká republika"
+  },
+  {
+    id: 2,
+    title: "AIESEC stáže",
+    tags: ["výjezd do zahraničí", "stáž"],
+    short_description: "S AIESEC máš možnost vyjet na dobrovolnickou stáž nehledě na to, zda jsi už na vysoké nebo už ne.",
+    long_description: "S AIESEC máš možnost vyjet na dobrovolnickou stáž nehledě na to, zda jsi už na vysoké nebo už ne, jako student můžeš vyjet na stáže ve startupech.",
+    thumbnail_url: "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
+    location: "Česká republika"
+  },
+  {
+    id: 3,
+    title: "Erasmus+ projekty",
+    tags: ["výjezd do zahraničí", "vzdělávání", "student vš"],
+    short_description: "Erasmus+ nabízí možnosti studia a stáží v zahraničí pro studenty vysokých škol.",
+    long_description: "Erasmus+ je program Evropské unie pro vzdělávání, odbornou přípravu, mládež a sport. Nabízí možnosti studia a stáží v zahraničí.",
+    thumbnail_url: "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
+    location: "Evropa"
+  }
+];
 
 const ActivityPanel = () => {
   const [activities, setActivities] = useState([]);
@@ -10,37 +42,6 @@ const ActivityPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(true); // Start expanded to show activities
-
-  // Sample data as fallback
-  const sampleActivities = [
-    {
-      id: 1,
-      title: "Středoškolská odborná činnost",
-      tags: ["soutěž", "student sš", "celá čr/online"],
-      short_description: "SOČ je prestižní soutěž pro středoškolské studenty. Ti nejlepší mají možnost pokračovat na zahraniční soutěže.",
-      long_description: "SOČ je prestižní soutěž pro středoškolské studenty. Ti nejlepší mají možnost pokračovat na zahraniční soutěže. Pro řadu účastníků je soutěž počátkem jejich vědecké kariéry.",
-      thumbnail_url: "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
-      location: "Česká republika"
-    },
-    {
-      id: 2,
-      title: "AIESEC stáže",
-      tags: ["výjezd do zahraničí", "stáž"],
-      short_description: "S AIESEC máš možnost vyjet na dobrovolnickou stáž nehledě na to, zda jsi už na vysoké nebo už ne.",
-      long_description: "S AIESEC máš možnost vyjet na dobrovolnickou stáž nehledě na to, zda jsi už na vysoké nebo už ne, jako student můžeš vyjet na stáže ve startupech.",
-      thumbnail_url: "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
-      location: "Česká republika"
-    },
-    {
-      id: 3,
-      title: "Erasmus+ projekty",
-      tags: ["výjezd do zahraničí", "vzdělávání", "student vš"],
-      short_description: "Erasmus+ nabízí možnosti studia a stáží v zahraničí pro studenty vysokých škol.",
-      long_description: "Erasmus+ je program Evropské unie pro vzdělávání, odbornou přípravu, mládež a sport. Nabízí možnosti studia a stáží v zahraničí.",
-      thumbnail_url: "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
-      location: "Evropa"
-    }
-  ];
 
   // Load activities data
   useEffect(() => {
@@ -100,25 +101,56 @@ const ActivityPanel = () => {
   }, [activities, searchTerm, selectedTags]);
 
   const handleTagToggle = (tag) => {
+    const wasSelected = selectedTags.includes(tag);
     setSelectedTags(prev => 
       prev.includes(tag) 
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
+    // Track tag selection/deselection
+    analyticsService.trackTagSelection(tag, !wasSelected);
   };
 
   const handleActivityClick = (activityId) => {
+    const activity = activities.find(a => a.id === activityId);
+    const wasExpanded = expandedActivity === activityId;
+    
     setExpandedActivity(expandedActivity === activityId ? null : activityId);
+    
+    if (activity) {
+      if (!wasExpanded) {
+        // Track activity expansion
+        analyticsService.trackActivityExpand(activity.title, activityId);
+      }
+      // Always track the click
+      analyticsService.trackActivityClick(activity.title, activityId);
+    }
   };
 
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedTags([]);
+    // Track filter clearing
+    analyticsService.trackEvent('Clear Filters', 'Activity Panel');
   };
 
   const togglePanel = () => {
-    setIsExpanded(!isExpanded);
+    const newExpanded = !isExpanded;
+    setIsExpanded(newExpanded);
+    // Track panel toggle
+    analyticsService.trackPanelToggle(newExpanded);
   };
+
+  // Track search actions with debounce effect
+  useEffect(() => {
+    if (searchTerm) {
+      const timeoutId = setTimeout(() => {
+        analyticsService.trackSearch(searchTerm);
+      }, 1000); // Debounce search tracking by 1 second
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchTerm]);
 
   if (loading) {
     return (
@@ -150,9 +182,6 @@ const ActivityPanel = () => {
   return (
     <div className={`activity-panel ${isExpanded ? 'expanded' : ''}`}>
       <div className="activity-panel-header">
-        <button className="toggle-button" onClick={togglePanel}>
-          {isExpanded ? '→' : '←'}
-        </button>
         {isExpanded && (
           <>
             <h1>Aktivity ({filteredActivities.length})</h1>
