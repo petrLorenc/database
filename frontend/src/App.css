@@ -19,49 +19,8 @@ body {
   min-height: 100vh;
   width: 100%;
   padding: 20px;
-  padding-right: 80px; /* Add space for chat button */
   position: relative;
-}
-
-.app-header {
-  text-align: center;
-  margin: 0 auto 20px auto;
-  padding: 20px 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.6s ease-out;
-  max-width: 100%;
-  width: 100%;
-}
-
-.app-logo {
-  max-width: 200px;
-  height: auto;
-  margin: auto;
-  transition: transform 0.3s ease;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-}
-
-.app-logo:hover {
-  transform: scale(1.05);
-}
-
-.app-header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 700;
-}
-
-.app-header p {
-  font-size: 1.2rem;
-  color: #6c757d;
-  font-weight: 400;
+  box-sizing: border-box;
 }
 
 .app-main {
@@ -69,7 +28,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  animation: fadeInUp 0.6s ease-out 0.2s both;
+  animation: fadeInUp 0.6s ease-out both;
   width: 100%;
   margin-right: 0; /* Remove any existing margin */
 }
@@ -80,7 +39,7 @@ body {
   flex-direction: column;
   min-height: 0;
   width: 100%;
-  max-width: calc(100vw - 120px); /* Ensure it doesn't overlap with chat */
+  max-width: 100%; /* Remove the calc restriction */
 }
 
 .app-footer {
@@ -98,17 +57,6 @@ body {
 }
 
 /* Animations */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -134,15 +82,6 @@ body {
   .app {
     padding: 15px;
   }
-
-  .app-logo {
-    max-width: 180px;
-  }
-  
-  .app-header {
-    margin-bottom: 15px;
-    padding: 15px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -153,25 +92,6 @@ body {
   .app {
     padding: 10px;
     min-height: 100vh;
-  }
-  
-  .app-header {
-    margin-bottom: 10px;
-    padding: 12px;
-    border-radius: 12px;
-  }
-  
-  .app-header h1 {
-    font-size: 2rem;
-    margin-bottom: 8px;
-  }
-  
-  .app-header p {
-    font-size: 1rem;
-  }
-
-  .app-logo {
-    max-width: 150px;
   }
 
   .app-main {
@@ -190,25 +110,6 @@ body {
   .app {
     padding: 8px;
   }
-  
-  .app-header {
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 10px;
-  }
-  
-  .app-header h1 {
-    font-size: 1.6rem;
-    margin-bottom: 6px;
-  }
-  
-  .app-header p {
-    font-size: 0.9rem;
-  }
-
-  .app-logo {
-    max-width: 120px;
-  }
 
   .app-footer {
     margin-top: 10px;
@@ -223,36 +124,10 @@ body {
   .app {
     padding: 5px;
   }
-  
-  .app-header h1 {
-    font-size: 1.4rem;
-  }
-  
-  .app-logo {
-    max-width: 100px;
-  }
 }
 
 /* Landscape orientation on mobile */
 @media (max-height: 600px) and (orientation: landscape) {
-  .app-header {
-    margin-bottom: 5px;
-    padding: 8px;
-  }
-  
-  .app-header h1 {
-    font-size: 1.4rem;
-    margin-bottom: 4px;
-  }
-  
-  .app-header p {
-    font-size: 0.85rem;
-  }
-  
-  .app-logo {
-    max-width: 80px;
-  }
-  
   .app-footer {
     margin-top: 8px;
     padding: 8px;
@@ -262,10 +137,8 @@ body {
 
 /* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
-  .app-header,
   .app-main,
   .app-footer,
-  .app-logo,
   .app {
     animation: none;
     transition: none;
@@ -278,22 +151,6 @@ body {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
   }
   
-  .app-header {
-    background: rgba(255, 255, 255, 0.08);
-    color: #f8f9fa;
-  }
-  
-  .app-header h1 {
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .app-header p {
-    color: #ced4da;
-  }
-  
   .app-footer {
     background: rgba(255, 255, 255, 0.05);
     color: rgba(255, 255, 255, 0.7);
@@ -302,19 +159,6 @@ body {
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .app-header {
-    background: white;
-    border: 2px solid #000;
-  }
-  
-  .app-header h1 {
-    background: none;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-    background-clip: unset;
-    color: #000;
-  }
-  
   .app-footer {
     background: white;
     color: #000;

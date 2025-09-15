@@ -16,6 +16,13 @@ fields_to_extract = [
     ("Popis", "description"),
     ("Kategorie", "category"),
 ]
+subfields = {
+    "Místo": "location",
+    "Pro koho": "education_level",
+    "Typ aktivity": "tags",
+    # "Obor": "tags",
+    "Inspirace": "tags",
+}
 
 # Resulting dictionary
 result = []
@@ -46,7 +53,6 @@ with open(csv_file_path, mode="r", encoding="utf-8") as file:
             }
         )
 
-        item["tags"] = {}
         # Combine all property fields dynamically
         for key in row:
             if key.startswith("Název") and key.replace("Název", "Hodnota(y)") in row:
@@ -54,7 +60,12 @@ with open(csv_file_path, mode="r", encoding="utf-8") as file:
                 property_value_key = key.replace("Název", "Hodnota(y)")
                 property_value = row[property_value_key]
                 if property_key and property_value:
-                    item["tags"][property_key] = property_value
+                    if subfields[property_key] in item:
+                        item[subfields[property_key]].extend(
+                            [x.strip().lower() for x in property_value.split(",")]
+                        )
+                    else:
+                        item[subfields[property_key]] = [x.replace(".", "").strip(",.\\ ").lower() for x in property_value.split(",")]
 
         # Add the processed row to the result
         result.append(item)
@@ -67,6 +78,8 @@ if LIMIT != -1:
 
 clean_json = []
 tags_unique = set()
+location_unique = set()
+education_level_unique = set()
 
 Path("pages").mkdir(exist_ok=True)
 for idx, page in enumerate(result):
@@ -76,25 +89,29 @@ for idx, page in enumerate(result):
     if "/" in id_name or len(id_name) == 0:
         continue
 
-    tags: list = [w.strip().lower() for value in page["tags"].values() for w in value.split(", ")]
     title = page["name_clean"]
     description = page["description"]
     subtitle = page["description_clean"][:120]
     # tags_from_description = set(map(lambda x: x.lower().strip(".[](), "), filter(lambda x: "/" not in x and ">" not in x and "<" not in x and x.isalpha(), description.split(" "))))
-    tags_unique = tags_unique | set(tags)
+    tags_unique.update(page.get("tags", []))
+    location_unique.update(page.get("location", []))
+    education_level_unique.update(page.get("education_level", []))
     # tags.extend(tags_from_description)
 
     clean_json.append(
         {
             "id": idx,
             "title": title,
-            "tags": tags,
+            
+            "location": page.get("location", []),
+            "tags": page.get("tags", []),
+            "education_level": page.get("education_level", []),
+            
             "short_description": subtitle,
             "long_description": description,
             "thumbnail_url": "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
             "created_at": "2025-01-15T12:00:00Z",
             "updated_at": "2025-06-20T14:30:00Z",
-            "location": "Česká republika",
         }
     )
     print(clean_json[-1])
@@ -119,6 +136,8 @@ with open("unique_tags.json", "w", encoding="utf-8") as f:
             "lastUpdated": "2025-08-30T12:00:00Z",
             "totalActivities": len(tags_unique),
         },
-        "tags": list(tags_unique),
+        "tags": sorted(list(tags_unique)),
+        "locations": sorted(list(location_unique)),
+        "education_levels": sorted(list(education_level_unique))
     }
     f.write(json.dumps(output, ensure_ascii=False, indent=4))
