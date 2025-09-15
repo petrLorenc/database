@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './ActivityPanel.css';
 import analyticsService from '../services/analyticsService';
+import logo from '../files/image.png';
 
 // Sample data as fallback - moved outside component to avoid dependency issues
 const sampleActivities = [
@@ -37,46 +38,62 @@ const ActivityPanel = () => {
   const [activities, setActivities] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
-  const [allTags, setAllTags] = useState([]);
+  const [tagCategories, setTagCategories] = useState({
+    location: [],
+    tags: [],
+    education_level: []
+  });
   const [expandedActivity, setExpandedActivity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(true); // Start expanded to show activities
 
   // Load activities data
   useEffect(() => {
     const loadActivities = async () => {
       try {
         console.log('Loading activities data...');
-        const response = await fetch('/data/activities_real.json');
+        const activitiesResponse = await fetch('/data/activities_real.json');
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (!activitiesResponse.ok) {
+          throw new Error(`HTTP error! status: ${activitiesResponse.status}`);
         }
         
-        const data = await response.json();
-        console.log('Activities loaded:', data.activities?.length || 0);
+        const activitiesData = await activitiesResponse.json();
+        console.log('Activities loaded:', activitiesData.activities?.length || 0);
         
-        if (data.activities && Array.isArray(data.activities)) {
-          setActivities(data.activities);
+        // Load unique tags data
+        console.log('Loading unique tags data...');
+        const tagsResponse = await fetch('/data/unique_tags.json');
+        
+        if (!tagsResponse.ok) {
+          throw new Error(`HTTP error loading tags! status: ${tagsResponse.status}`);
+        }
+        
+        const tagsData = await tagsResponse.json();
+        console.log('Tags loaded:', tagsData);
+        
+        if (activitiesData.activities && Array.isArray(activitiesData.activities)) {
+          setActivities(activitiesData.activities);
           
-          // Extract unique tags
-          const tags = new Set();
-          data.activities.forEach(activity => {
-            if (activity.tags && Array.isArray(activity.tags)) {
-              activity.tags.forEach(tag => tags.add(tag));
-            }
+          // Use the unique tags from the separate file
+          setTagCategories({
+            location: tagsData.locations || [],
+            tags: tagsData.tags || [],
+            education_level: tagsData.education_levels || []
           });
-          setAllTags([...tags].sort());
         } else {
-          throw new Error('Invalid data format');
+          throw new Error('Invalid activities data format');
         }
       } catch (error) {
-        console.error('Error loading activities:', error);
+        console.error('Error loading data:', error);
         setError(error.message);
         // Use sample data as fallback
         setActivities(sampleActivities);
-        setAllTags(["soutěž", "student sš", "celá čr/online", "výjezd do zahraničí", "stáž", "vzdělávání", "student vš"]);
+        setTagCategories({
+          location: ["celá čr/online", "praha", "zahraničí"],
+          tags: ["soutěž", "výjezd do zahraničí", "stáž", "vzdělávání", "dobrovolnictví", "osobní rozvoj"],
+          education_level: ["student sš", "student vš", "student zš"]
+        });
       } finally {
         setLoading(false);
       }
@@ -94,7 +111,20 @@ const ActivityPanel = () => {
         (activity.long_description && activity.long_description.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchesTags = selectedTags.length === 0 || 
-        (activity.tags && selectedTags.every(tag => activity.tags.includes(tag)));
+        selectedTags.every(tag => {
+          // Check if tag exists in any of the three categories (new structure)
+          if (activity.location && Array.isArray(activity.location)) {
+            const inLocation = activity.location.includes(tag);
+            const inTags = activity.tags && activity.tags.includes(tag);
+            const inEducation = activity.education_level && activity.education_level.includes(tag);
+            return inLocation || inTags || inEducation;
+          } 
+          // Handle old structure with combined tags array
+          else if (activity.tags && Array.isArray(activity.tags)) {
+            return activity.tags.includes(tag);
+          }
+          return false;
+        });
       
       return matchesSearch && matchesTags;
     });
@@ -134,13 +164,6 @@ const ActivityPanel = () => {
     analyticsService.trackEvent('Clear Filters', 'Activity Panel');
   };
 
-  const togglePanel = () => {
-    const newExpanded = !isExpanded;
-    setIsExpanded(newExpanded);
-    // Track panel toggle
-    analyticsService.trackPanelToggle(newExpanded);
-  };
-
   // Track search actions with debounce effect
   useEffect(() => {
     if (searchTerm) {
@@ -154,18 +177,16 @@ const ActivityPanel = () => {
 
   if (loading) {
     return (
-      <div className={`activity-panel ${isExpanded ? 'expanded' : ''}`}>
+      <div className={`activity-panel expanded`}>
         <div className="activity-panel-header">
-          <button className="toggle-button" onClick={togglePanel}>
-            {isExpanded ? '→' : '←'}
-          </button>
-          {isExpanded && (
-            <>
+          <div className="header-content">
+            <img src={logo} alt="Buď aktivní Logo" className="activity-panel-logo" />
+            <div className="header-text">
               <h1>Aktivity</h1>
-            </>
-          )}
+            </div>
+          </div>
         </div>
-        {isExpanded && (
+        
           <div className="activity-panel-main">
             <div className="loading-container">
               <div className="loading-spinner">
@@ -174,24 +195,24 @@ const ActivityPanel = () => {
               <p>Načítám aktivity...</p>
             </div>
           </div>
-        )}
+        
       </div>
     );
   }
 
   return (
-    <div className={`activity-panel ${isExpanded ? 'expanded' : ''}`}>
+    <div className={`activity-panel expanded`}>
       <div className="activity-panel-header">
-        {isExpanded && (
-          <>
+        <div className="header-content">
+          <img src={logo} alt="Buď aktivní Logo" className="activity-panel-logo" />
+          <div className="header-text">
             <h1>Aktivity ({filteredActivities.length})</h1>
             <p>Prozkoumejte všechny dostupné aktivity a najděte ty, které vás zajímají</p>
-          </>
-        )}
+          </div>
+        </div>
       </div>
 
-      {isExpanded && (
-        <div className="activity-panel-main">
+      <div className="activity-panel-main">
           <div className="search-section">
             <div className="search-input-container">
               <input
@@ -215,17 +236,54 @@ const ActivityPanel = () => {
           </div>
 
           <div className="tags-section">
-            <h3>Filtry podle tagů</h3>
-            <div className="tags-container">
-              {allTags.map(tag => (
-                <button
-                  key={tag}
-                  className={`tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
-                  onClick={() => handleTagToggle(tag)}
-                >
-                  {tag}
-                </button>
-              ))}
+            <h3>Filtry podle kategorií</h3>
+            
+            {/* Location Tags */}
+            <div className="tag-category">
+              <h4 className="category-title">Lokalita</h4>
+              <div className="tags-container">
+                {tagCategories.location.map(tag => (
+                  <button
+                    key={`location-${tag}`}
+                    className={`tag location-tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                    onClick={() => handleTagToggle(tag)}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* General Tags */}
+            <div className="tag-category">
+              <h4 className="category-title">Druh aktivity</h4>
+              <div className="tags-container">
+                {tagCategories.tags.map(tag => (
+                  <button
+                    key={`tags-${tag}`}
+                    className={`tag general-tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                    onClick={() => handleTagToggle(tag)}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Education Level Tags */}
+            <div className="tag-category">
+              <h4 className="category-title">Vzdělání</h4>
+              <div className="tags-container">
+                {tagCategories.education_level.map(tag => (
+                  <button
+                    key={`education-${tag}`}
+                    className={`tag education-tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                    onClick={() => handleTagToggle(tag)}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -256,12 +314,46 @@ const ActivityPanel = () => {
                         <h4 className="activity-title">{activity.title}</h4>
                         <p className="activity-location">{activity.location || "Česká republika"}</p>
                         <div className="activity-tags">
-                          {(activity.tags || []).slice(0, 3).map(tag => (
-                            <span key={tag} className="tag-chip">{tag}</span>
-                          ))}
-                          {(activity.tags || []).length > 3 && (
-                            <span className="tag-chip more">+{activity.tags.length - 3}</span>
-                          )}
+                          {(() => {
+                            // Handle different data structures
+                            let allActivityTags = [];
+                            
+                            // New structure with separate arrays
+                            if (activity.location && Array.isArray(activity.location)) {
+                              allActivityTags = [
+                                ...(activity.location || []),
+                                ...(activity.tags || []),
+                                ...(activity.education_level || [])
+                              ];
+                            } 
+                            // Old structure with combined tags array
+                            else if (activity.tags && Array.isArray(activity.tags)) {
+                              allActivityTags = activity.tags;
+                            }
+                            
+                            return allActivityTags.slice(0, 3).map((tag, index) => (
+                              <span key={`${tag}-${index}`} className="tag-chip">{tag}</span>
+                            ));
+                          })()}
+                          {(() => {
+                            // Handle different data structures for count
+                            let allActivityTags = [];
+                            
+                            if (activity.location && Array.isArray(activity.location)) {
+                              allActivityTags = [
+                                ...(activity.location || []),
+                                ...(activity.tags || []),
+                                ...(activity.education_level || [])
+                              ];
+                            } else if (activity.tags && Array.isArray(activity.tags)) {
+                              allActivityTags = activity.tags;
+                            }
+                            
+                            if (allActivityTags.length > 3) {
+                              return <span className="tag-chip more">+{allActivityTags.length - 3}</span>;
+                            }
+                            return null;
+                          })()}
                         </div>
                       </div>
                       <div className="expand-icon">
@@ -280,16 +372,37 @@ const ActivityPanel = () => {
                                __html: activity.long_description || activity.short_description 
                              }}
                         />
-                        {activity.tags && activity.tags.length > 0 && (
-                          <div className="activity-all-tags">
-                            <strong>Všechny tagy:</strong>
-                            <div className="tags-list">
-                              {activity.tags.map(tag => (
-                                <span key={tag} className="tag-chip">{tag}</span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        {(() => {
+                          // Handle different data structures
+                          let allActivityTags = [];
+                          
+                          // New structure with separate arrays
+                          if (activity.location && Array.isArray(activity.location)) {
+                            allActivityTags = [
+                              ...(activity.location || []),
+                              ...(activity.tags || []),
+                              ...(activity.education_level || [])
+                            ];
+                          } 
+                          // Old structure with combined tags array
+                          else if (activity.tags && Array.isArray(activity.tags)) {
+                            allActivityTags = activity.tags;
+                          }
+                          
+                          if (allActivityTags.length > 0) {
+                            return (
+                              <div className="activity-all-tags">
+                                <strong>Všechny tagy:</strong>
+                                <div className="tags-list">
+                                  {allActivityTags.map((tag, index) => (
+                                    <span key={`${tag}-${index}`} className="tag-chip">{tag}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                     )}
                   </div>
@@ -298,7 +411,7 @@ const ActivityPanel = () => {
             )}
           </div>
         </div>
-      )}
+
     </div>
   );
 };

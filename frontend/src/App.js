@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import ChatInterface from './components/ChatInterface';
 import ActivityPanel from './components/ActivityPanel';
-import logo from './files/image.png';
 import analyticsService from './services/analyticsService';
 
 function App() {
@@ -22,12 +21,6 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="logo-container">
-          <img src={logo} alt="Buď aktivní Logo" className="app-logo" />
-        </div>
-      </header>
-      
       <main className="app-main">
         <div className="activity-section">
           <ActivityPanel />
