@@ -59,13 +59,12 @@ with open(csv_file_path, mode="r", encoding="utf-8") as file:
                 property_key = row[key]
                 property_value_key = key.replace("Název", "Hodnota(y)")
                 property_value = row[property_value_key]
-                if property_key and property_value:
+                if property_key in subfields and property_key and property_value:
+                    field_values = [x.replace(".", "").strip(",.\\ ").lower() for x in property_value.split(",")]
                     if subfields[property_key] in item:
-                        item[subfields[property_key]].extend(
-                            [x.strip().lower() for x in property_value.split(",")]
-                        )
+                        item[subfields[property_key]].extend(field_values)
                     else:
-                        item[subfields[property_key]] = [x.replace(".", "").strip(",.\\ ").lower() for x in property_value.split(",")]
+                        item[subfields[property_key]] = field_values
 
         # Add the processed row to the result
         result.append(item)
