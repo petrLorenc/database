@@ -241,3 +241,8 @@ data/*real*.json
 
 frontend/node_modules
 frontend/build
+
+frontend/.env.local
+frontend/.env.production
+
+.vscode

@@ -39,8 +39,8 @@ variable "environment" {
   }
 }
 
-variable "enable_cloudfront" {
-  description = "Enable CloudFront distribution (recommended for prod, optional for dev/staging)"
-  type        = bool
-  default     = false
+variable "custom_domain" {
+  description = "Custom domain for the frontend (e.g., yourdomain.cz). Leave empty if using Vercel default domain."
+  type        = string
+  default     = ""
 }

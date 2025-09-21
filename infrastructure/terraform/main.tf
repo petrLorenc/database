@@ -1,23 +1,24 @@
 ###############################################
-# Main Terraform configuration for Chatbot App
-# - S3 Bucket: frontend + static data
+# Terraform configuration for Vercel + AWS Lambda
+# - S3 Bucket: data storage only
 # - Lambda Functions: backend logic
 # - API Gateway: public API exposure
+# - No frontend hosting (handled by Vercel)
 ###############################################
 
 ###############################################
-# S3 FRONTEND + STATIC DATA
+# S3 DATA STORAGE (NO FRONTEND)
 ###############################################
 
-# Bucket for hosting frontend and activities data
-resource "aws_s3_bucket" "activity_bucket" {
+# Bucket for storing activities data (used by Lambda backend)
+resource "aws_s3_bucket" "activity_data_bucket" {
   bucket        = var.s3_bucket_name
   force_destroy = true # Allow bucket destroy even if objects exist
 }
 
 # Upload activities JSON (used by Lambda backend)
 resource "aws_s3_object" "activities_json" {
-  bucket       = aws_s3_bucket.activity_bucket.id
+  bucket       = aws_s3_bucket.activity_data_bucket.id
   key          = "activities.json"
   source       = "${path.module}/../../data/activities_real.json"
   etag         = filemd5("${path.module}/../../data/activities_real.json")
@@ -26,283 +27,41 @@ resource "aws_s3_object" "activities_json" {
 
 # Upload tags JSON (used by backend search)
 resource "aws_s3_object" "tags_json" {
-  bucket       = aws_s3_bucket.activity_bucket.id
+  bucket       = aws_s3_bucket.activity_data_bucket.id
   key          = "unique_tags.json"
   source       = "${path.module}/../../data/unique_tags.json"
   etag         = filemd5("${path.module}/../../data/unique_tags.json")
   content_type = "application/json"
 }
 
-# Build frontend (React + Static SEO Pages)
-resource "null_resource" "frontend_build" {
-  provisioner "local-exec" {
-    working_dir = "${path.module}/../../frontend"
-    command     = "npm install && REACT_APP_GA_MEASUREMENT_ID=${var.google_analytics_measurement_id} npm run build"
-  }
-  # Rebuild only when frontend source files change
-  triggers = {
-    src_hash = sha256(join("", [
-      for f in fileset("${path.module}/../../frontend/src", "**/*")
-      : filesha256("${path.module}/../../frontend/src/${f}")
-    ]))
-    scripts_hash = sha256(join("", [
-      for f in fileset("${path.module}/../../frontend/scripts", "**/*")
-      : filesha256("${path.module}/../../frontend/scripts/${f}")
-    ]))
-    data_hash              = filesha256("${path.module}/../../data/activities_real.json")
-    package_json           = filesha256("${path.module}/../../frontend/package.json")
-    package_lock           = filesha256("${path.module}/../../frontend/package-lock.json")
-    ga_measurement_id      = var.google_analytics_measurement_id
-  }
-}
-
-# Upload built frontend files
-resource "aws_s3_object" "frontend_files" {
-  depends_on = [null_resource.frontend_build]
-  for_each   = fileset("${path.module}/../../frontend/build", "**/*")
-  
-  bucket       = aws_s3_bucket.activity_bucket.id
-  key          = each.key
-  source       = "${path.module}/../../frontend/build/${each.key}"
-  etag         = filemd5("${path.module}/../../frontend/build/${each.key}")
-  content_type = lookup(local.mime_types,
-    length(regexall("\\.[^.]+$", each.key)) > 0 ? regexall("\\.[^.]+$", each.key)[0] : "",
-    "application/octet-stream"
-  )
-
-  # Add triggers to ensure files are re-uploaded when frontend changes
-  lifecycle {
-    replace_triggered_by = [
-      null_resource.frontend_build
-    ]
-  }
-}
-
-# Runtime config (so frontend can call API dynamically)
-resource "aws_s3_object" "frontend_config" {
-  depends_on = [null_resource.frontend_build, aws_apigatewayv2_stage.default]
-
-  bucket       = aws_s3_bucket.activity_bucket.id
-  key          = "config.json"
-  content      = <<EOF
-{ "API_BASE_URL": "${aws_apigatewayv2_api.api.api_endpoint}" }
-EOF
-  content_type = "application/json"
-  acl          = "public-read"
-}
-
-# File extension → MIME type mapping
-locals {
-  mime_types = {
-    ".html" = "text/html"
-    ".css"  = "text/css"
-    ".js"   = "application/javascript"
-    ".json" = "application/json"
-    ".png"  = "image/png"
-    ".jpg"  = "image/jpeg"
-    ".jpeg" = "image/jpeg"
-    ".ico"  = "image/x-icon"
-    ".svg"  = "image/svg+xml"
-  }
-}
-
-# Website hosting config
-resource "aws_s3_bucket_website_configuration" "activity_bucket_website" {
-  bucket = aws_s3_bucket.activity_bucket.id
-  index_document { suffix = "index.html" }
-  error_document { key    = "error.html" }
-}
-
-# ✅ S3 CORS: allow frontend to fetch JSON and static files
-resource "aws_s3_bucket_cors_configuration" "activity_bucket_cors" {
-  bucket = aws_s3_bucket.activity_bucket.id
+# ✅ S3 CORS: allow Vercel frontend to fetch JSON (if needed for client-side calls)
+resource "aws_s3_bucket_cors_configuration" "activity_data_bucket_cors" {
+  bucket = aws_s3_bucket.activity_data_bucket.id
 
   cors_rule {
     allowed_headers = ["*"]
-    allowed_methods = ["GET", "HEAD", "POST"]
-    allowed_origins = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = [
+      "https://*.vercel.app",
+      "https://${var.custom_domain}",
+      "http://localhost:3000" # For local development
+    ]
     max_age_seconds = 3000
   }
-}
-
-# Bucket ownership & ACL (public website hosting)
-resource "aws_s3_bucket_ownership_controls" "activity_bucket_ownership" {
-  bucket = aws_s3_bucket.activity_bucket.id
-  rule { object_ownership = "BucketOwnerPreferred" }
-}
-
-resource "aws_s3_bucket_acl" "activity_bucket_acl" {
-  depends_on = [aws_s3_bucket_ownership_controls.activity_bucket_ownership]
-  bucket     = aws_s3_bucket.activity_bucket.id
-  acl        = "public-read"
-}
-
-# Public access configuration
-resource "aws_s3_bucket_public_access_block" "activity_bucket_public_access" {
-  bucket = aws_s3_bucket.activity_bucket.id
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-###############################################
-# CLOUDFRONT DISTRIBUTION FOR PERFORMANCE & SEO
-###############################################
-
-# CloudFront Origin Access Control for S3 (only if CloudFront enabled)
-resource "aws_cloudfront_origin_access_control" "s3_oac" {
-  count                             = var.enable_cloudfront ? 1 : 0
-  name                              = "activity-bucket-oac"
-  description                       = "OAC for activity bucket"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
-}
-
-# CloudFront Distribution (only for production/staging)
-resource "aws_cloudfront_distribution" "activity_distribution" {
-  count      = var.enable_cloudfront ? 1 : 0
-  depends_on = [aws_s3_object.frontend_files]
-
-  origin {
-    domain_name              = aws_s3_bucket.activity_bucket.bucket_regional_domain_name
-    origin_id                = "S3-${aws_s3_bucket.activity_bucket.id}"
-    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac[0].id
-  }
-
-  enabled             = true
-  is_ipv6_enabled     = true
-  default_root_object = "index.html"
-
-  # Cache behavior for React app (index.html)
-  default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-${aws_s3_bucket.activity_bucket.id}"
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600    # 1 hour
-    max_ttl                = 86400   # 24 hours
-  }
-
-  # Cache behavior for static activity pages (better SEO caching)
-  ordered_cache_behavior {
-    path_pattern     = "activities/*.html"
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-${aws_s3_bucket.activity_bucket.id}"
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 86400   # 24 hours for SEO pages
-    max_ttl                = 604800  # 7 days
-  }
-
-  # Cache behavior for static assets (CSS, JS, images)
-  ordered_cache_behavior {
-    path_pattern     = "static/*"
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-${aws_s3_bucket.activity_bucket.id}"
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 86400   # 24 hours
-    default_ttl            = 604800  # 7 days
-    max_ttl                = 31536000 # 1 year
-  }
-
-  # Handle SPA routing - redirect 404s to index.html
-  custom_error_response {
-    error_code            = 404
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 0
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
-
-  tags = {
-    Name = "Activity Database Distribution"
-  }
-}
-
-# S3 bucket policy - conditional based on CloudFront usage
-resource "aws_s3_bucket_policy" "activity_bucket_policy" {
-  depends_on = [aws_s3_bucket_public_access_block.activity_bucket_public_access]
-  bucket = aws_s3_bucket.activity_bucket.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = concat(
-      var.enable_cloudfront ? [
-        {
-          Effect = "Allow"
-          Principal = {
-            Service = "cloudfront.amazonaws.com"
-          }
-          Action   = "s3:GetObject"
-          Resource = "${aws_s3_bucket.activity_bucket.arn}/*"
-          Condition = {
-            StringEquals = {
-              "AWS:SourceArn" = aws_cloudfront_distribution.activity_distribution[0].arn
-            }
-          }
-        }
-      ] : [],
-      [
-        {
-          Effect    = "Allow"
-          Principal = "*"
-          Action    = "s3:GetObject"
-          Resource  = "${aws_s3_bucket.activity_bucket.arn}/*"
-        }
-      ]
-    )
-  })
 }
 
 ###############################################
 # IAM ROLES + POLICIES FOR LAMBDA
 ###############################################
 
-# Execution role
+# IAM role for Lambda execution
 resource "aws_iam_role" "lambda_execution_role" {
   name = "activity_database_lambda_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect = "Allow"
-      Action = "sts:AssumeRole"
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
       Principal = { Service = "lambda.amazonaws.com" }
     }]
   })
@@ -321,9 +80,12 @@ resource "aws_iam_policy" "lambda_s3_access" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect   = "Allow"
-      Action   = "s3:GetObject"
-      Resource = "${aws_s3_bucket.activity_bucket.arn}/*"
+      Effect = "Allow"
+      Action = ["s3:GetObject", "s3:ListBucket"]
+      Resource = [
+        aws_s3_bucket.activity_data_bucket.arn,
+        "${aws_s3_bucket.activity_data_bucket.arn}/*"
+      ]
     }]
   })
 }
@@ -337,7 +99,7 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_access_attachment" {
 # LAMBDA FUNCTIONS
 ###############################################
 
-# Package definitions
+# Package Lambda functions
 data "archive_file" "query_processor_zip" {
   type        = "zip"
   source_dir  = "${path.module}/../../backend/functions/query_processor"
@@ -363,30 +125,27 @@ data "archive_file" "result_enhancer_zip" {
 resource "null_resource" "build_lambda_layer" {
   triggers = {
     requirements_hash = filesha256("${path.module}/../../backend/requirements.txt")
-    utils_hash = filesha256("${path.module}/../../backend/functions/utils.py")
+    utils_hash        = filesha256("${path.module}/../../backend/functions/utils.py")
   }
 
   provisioner "local-exec" {
     working_dir = "${path.module}/../../backend"
     command     = "bash create_zip_file.sh"
   }
-  
 }
 
 # Create Lambda Layer for dependencies
 resource "aws_lambda_layer_version" "dependencies" {
-  depends_on = [null_resource.build_lambda_layer]
-  filename         = "${path.module}/../../backend/deployments/lambda_layer.zip"
-  layer_name       = "activity_database_dependencies"
-  description      = "Dependencies for Activity Database Lambda functions"
+  depends_on          = [null_resource.build_lambda_layer]
+  filename            = "${path.module}/../../backend/deployments/lambda_layer.zip"
+  layer_name          = "activity_database_dependencies"
+  description         = "Dependencies for Activity Database Lambda functions"
   compatible_runtimes = ["python3.10"]
-  
-  # Add source code hash to detect changes in the layer ZIP
+
   source_code_hash = filebase64sha256("${path.module}/../../backend/deployments/lambda_layer.zip")
-  
+
   lifecycle {
     create_before_destroy = true
-    # Force replacement when the build changes
     replace_triggered_by = [
       null_resource.build_lambda_layer
     ]
@@ -400,18 +159,17 @@ resource "aws_lambda_function" "query_processor_function" {
   source_code_hash = data.archive_file.query_processor_zip.output_base64sha256
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "lambda_function.lambda_handler"
-  runtime          = "python3.10"  # Latest stable AWS Lambda Python runtime
+  runtime          = "python3.10"
   timeout          = 10
   memory_size      = 256
   environment {
-    variables = { 
-      OPENAI_API_KEY = var.openai_api_key
-      TAGS_BUCKET_NAME = aws_s3_bucket.activity_bucket.id
-      TAGS_FILE_KEY = "unique_tags.json"
+    variables = {
+      OPENAI_API_KEY   = var.openai_api_key
+      TAGS_BUCKET_NAME = aws_s3_bucket.activity_data_bucket.id
+      TAGS_FILE_KEY    = "unique_tags.json"
     }
   }
 
-  # Add Lambda Layers for dependencies
   layers = [aws_lambda_layer_version.dependencies.arn]
 }
 
@@ -427,12 +185,11 @@ resource "aws_lambda_function" "search_engine_function" {
   memory_size      = 256
   environment {
     variables = {
-      ACTIVITIES_BUCKET_NAME = aws_s3_bucket.activity_bucket.id
+      ACTIVITIES_BUCKET_NAME = aws_s3_bucket.activity_data_bucket.id
       ACTIVITIES_FILE_KEY    = "activities.json"
     }
   }
 
-  # Add Lambda Layers for dependencies
   layers = [aws_lambda_layer_version.dependencies.arn]
 }
 
@@ -450,104 +207,100 @@ resource "aws_lambda_function" "result_enhancer_function" {
     variables = { OPENAI_API_KEY = var.openai_api_key }
   }
 
-  # Add Lambda Layers for dependencies
   layers = [aws_lambda_layer_version.dependencies.arn]
 }
 
 ###############################################
-# API GATEWAY (HTTP API)
+# API GATEWAY FOR LAMBDA ENDPOINTS
 ###############################################
 
+# HTTP API Gateway (cheaper and simpler than REST API)
 resource "aws_apigatewayv2_api" "api" {
-  name          = "${var.project_name}-api"
+  name          = "activity-database-api"
   protocol_type = "HTTP"
+  description   = "API for Activity Database Lambda functions"
 
-  # ✅ CORS config: allows frontend and local dev to call APIs
+  # CORS configuration for Vercel frontend
   cors_configuration {
+    allow_credentials = false
+    allow_headers     = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token"]
+    allow_methods     = ["GET", "HEAD", "OPTIONS", "POST"]
     allow_origins = [
-      "http://${aws_s3_bucket_website_configuration.activity_bucket_website.website_endpoint}",
-      "https://${aws_s3_bucket_website_configuration.activity_bucket_website.website_endpoint}",
-      "http://localhost:3000",
-      "http://localhost:5550",
-      "*"
+      "https://*.vercel.app",
+      "https://${var.custom_domain}",
+      "http://localhost:3000" # For local development
     ]
-    allow_methods = ["POST", "OPTIONS", "GET"]
-    allow_headers = ["content-type", "authorization", "x-amz-date", "x-api-key", "x-amz-security-token"]
-    expose_headers = ["content-length", "date"]
-    max_age       = 300
+    expose_headers = ["date", "keep-alive"]
+    max_age        = 86400
   }
 }
 
-# Integrations
-resource "aws_apigatewayv2_integration" "query_processor_integration" {
-  api_id                 = aws_apigatewayv2_api.api.id
-  integration_type       = "AWS_PROXY"
-  integration_uri        = aws_lambda_function.query_processor_function.invoke_arn
-  integration_method     = "POST"
-  payload_format_version = "2.0"
-}
-resource "aws_apigatewayv2_integration" "search_engine_integration" {
-  api_id                 = aws_apigatewayv2_api.api.id
-  integration_type       = "AWS_PROXY"
-  integration_uri        = aws_lambda_function.search_engine_function.invoke_arn
-  integration_method     = "POST"
-  payload_format_version = "2.0"
-}
-resource "aws_apigatewayv2_integration" "result_enhancer_integration" {
-  api_id                 = aws_apigatewayv2_api.api.id
-  integration_type       = "AWS_PROXY"
-  integration_uri        = aws_lambda_function.result_enhancer_function.invoke_arn
-  integration_method     = "POST"
-  payload_format_version = "2.0"
+# API Gateway Stage
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.api.id
+  name        = "api"
+  auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gateway_logs.arn
+    format = jsonencode({
+      requestId      = "$context.requestId"
+      ip             = "$context.identity.sourceIp"
+      requestTime    = "$context.requestTime"
+      httpMethod     = "$context.httpMethod"
+      routeKey       = "$context.routeKey"
+      status         = "$context.status"
+      protocol       = "$context.protocol"
+      responseLength = "$context.responseLength"
+    })
+  }
 }
 
-# Routes
+# CloudWatch log group for API Gateway
+resource "aws_cloudwatch_log_group" "api_gateway_logs" {
+  name              = "/aws/apigateway/activity-database-api"
+  retention_in_days = 14
+}
+
+# Lambda integrations
+resource "aws_apigatewayv2_integration" "query_processor_integration" {
+  api_id             = aws_apigatewayv2_api.api.id
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST"
+  integration_uri    = aws_lambda_function.query_processor_function.invoke_arn
+}
+
+resource "aws_apigatewayv2_integration" "search_engine_integration" {
+  api_id             = aws_apigatewayv2_api.api.id
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST"
+  integration_uri    = aws_lambda_function.search_engine_function.invoke_arn
+}
+
+resource "aws_apigatewayv2_integration" "result_enhancer_integration" {
+  api_id             = aws_apigatewayv2_api.api.id
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST"
+  integration_uri    = aws_lambda_function.result_enhancer_function.invoke_arn
+}
+
+# API Routes
 resource "aws_apigatewayv2_route" "query_processor_route" {
   api_id    = aws_apigatewayv2_api.api.id
-  route_key = "POST /process-query"
-  target    = "integrations/${aws_apigatewayv2_integration.query_processor_integration.id}"
-}
-
-# Update the OPTIONS route to use the direct integration
-resource "aws_apigatewayv2_route" "query_processor_route_options" {
-  api_id    = aws_apigatewayv2_api.api.id
-  route_key = "OPTIONS /process-query"
+  route_key = "POST /query-processor"
   target    = "integrations/${aws_apigatewayv2_integration.query_processor_integration.id}"
 }
 
 resource "aws_apigatewayv2_route" "search_engine_route" {
   api_id    = aws_apigatewayv2_api.api.id
-  route_key = "POST /search"
-  target    = "integrations/${aws_apigatewayv2_integration.search_engine_integration.id}"
-}
-
-resource "aws_apigatewayv2_route" "search_engine_route_options" {
-  api_id    = aws_apigatewayv2_api.api.id
-  route_key = "OPTIONS /search"
+  route_key = "POST /search-engine"
   target    = "integrations/${aws_apigatewayv2_integration.search_engine_integration.id}"
 }
 
 resource "aws_apigatewayv2_route" "result_enhancer_route" {
   api_id    = aws_apigatewayv2_api.api.id
-  route_key = "POST /enhance"
+  route_key = "POST /result-enhancer"
   target    = "integrations/${aws_apigatewayv2_integration.result_enhancer_integration.id}"
-}
-
-resource "aws_apigatewayv2_route" "result_enhancer_route_options" {
-  api_id    = aws_apigatewayv2_api.api.id
-  route_key = "OPTIONS /enhance"
-  target    = "integrations/${aws_apigatewayv2_integration.result_enhancer_integration.id}"
-}
-
-# Stage
-resource "aws_apigatewayv2_stage" "default" {
-  api_id      = aws_apigatewayv2_api.api.id
-  name        = "$default"
-  auto_deploy = true
-  default_route_settings {
-    throttling_burst_limit = 100
-    throttling_rate_limit  = 50
-  }
 }
 
 # Lambda permissions for API Gateway
@@ -558,6 +311,7 @@ resource "aws_lambda_permission" "query_processor_permission" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.api.execution_arn}/*"
 }
+
 resource "aws_lambda_permission" "search_engine_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
@@ -565,6 +319,7 @@ resource "aws_lambda_permission" "search_engine_permission" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.api.execution_arn}/*"
 }
+
 resource "aws_lambda_permission" "result_enhancer_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
