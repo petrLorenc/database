@@ -26,7 +26,9 @@ terraform plan
 3. Apply the configuration to create/update the infrastructure:
 
 ```bash
-terraform apply
+terraform apply -var-file="terraform.dev.tfvars"
+# OR
+terraform apply -var-file="terraform.prod.tfvars"
 ```
 
 4. When prompted, type "yes" to confirm the changes.

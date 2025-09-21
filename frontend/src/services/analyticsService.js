@@ -47,6 +47,22 @@ class AnalyticsService {
     this.trackEvent('Activity Expand', 'Activity Panel', `${activityTitle} (ID: ${activityId})`);
   }
 
+  trackActivityPageView(activityId, activityTitle) {
+    // Track the page view event
+    this.trackEvent('Activity Page View', 'Activity Detail', `${activityTitle} (ID: ${activityId})`);
+    
+    // Track as a page view for GA
+    if (this.isInitialized) {
+      ReactGA.gtag('event', 'page_view', {
+        page_title: `Activity: ${activityTitle}`,
+        page_location: window.location.href,
+        custom_map: {
+          custom_activity_id: activityId
+        }
+      });
+    }
+  }
+
   trackSearch(searchTerm) {
     this.trackEvent('Search', 'Activity Panel', searchTerm);
   }

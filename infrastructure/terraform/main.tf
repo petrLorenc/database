@@ -33,11 +33,11 @@ resource "aws_s3_object" "tags_json" {
   content_type = "application/json"
 }
 
-# Build frontend (React)
+# Build frontend (React + Static SEO Pages)
 resource "null_resource" "frontend_build" {
   provisioner "local-exec" {
     working_dir = "${path.module}/../../frontend"
-    command     = "npm install && npm run build"
+    command     = "npm install && REACT_APP_GA_MEASUREMENT_ID=${var.google_analytics_measurement_id} npm run build"
   }
   # Rebuild only when frontend source files change
   triggers = {
@@ -45,8 +45,14 @@ resource "null_resource" "frontend_build" {
       for f in fileset("${path.module}/../../frontend/src", "**/*")
       : filesha256("${path.module}/../../frontend/src/${f}")
     ]))
-    package_json = filesha256("${path.module}/../../frontend/package.json")
-    package_lock = filesha256("${path.module}/../../frontend/package-lock.json")
+    scripts_hash = sha256(join("", [
+      for f in fileset("${path.module}/../../frontend/scripts", "**/*")
+      : filesha256("${path.module}/../../frontend/scripts/${f}")
+    ]))
+    data_hash              = filesha256("${path.module}/../../data/activities_real.json")
+    package_json           = filesha256("${path.module}/../../frontend/package.json")
+    package_lock           = filesha256("${path.module}/../../frontend/package-lock.json")
+    ga_measurement_id      = var.google_analytics_measurement_id
   }
 }
 
@@ -140,18 +146,148 @@ resource "aws_s3_bucket_public_access_block" "activity_bucket_public_access" {
   restrict_public_buckets = false
 }
 
-# Bucket policy: allow public read of objects
+###############################################
+# CLOUDFRONT DISTRIBUTION FOR PERFORMANCE & SEO
+###############################################
+
+# CloudFront Origin Access Control for S3 (only if CloudFront enabled)
+resource "aws_cloudfront_origin_access_control" "s3_oac" {
+  count                             = var.enable_cloudfront ? 1 : 0
+  name                              = "activity-bucket-oac"
+  description                       = "OAC for activity bucket"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+# CloudFront Distribution (only for production/staging)
+resource "aws_cloudfront_distribution" "activity_distribution" {
+  count      = var.enable_cloudfront ? 1 : 0
+  depends_on = [aws_s3_object.frontend_files]
+
+  origin {
+    domain_name              = aws_s3_bucket.activity_bucket.bucket_regional_domain_name
+    origin_id                = "S3-${aws_s3_bucket.activity_bucket.id}"
+    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac[0].id
+  }
+
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
+
+  # Cache behavior for React app (index.html)
+  default_cache_behavior {
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${aws_s3_bucket.activity_bucket.id}"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600    # 1 hour
+    max_ttl                = 86400   # 24 hours
+  }
+
+  # Cache behavior for static activity pages (better SEO caching)
+  ordered_cache_behavior {
+    path_pattern     = "activities/*.html"
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${aws_s3_bucket.activity_bucket.id}"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 86400   # 24 hours for SEO pages
+    max_ttl                = 604800  # 7 days
+  }
+
+  # Cache behavior for static assets (CSS, JS, images)
+  ordered_cache_behavior {
+    path_pattern     = "static/*"
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${aws_s3_bucket.activity_bucket.id}"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 86400   # 24 hours
+    default_ttl            = 604800  # 7 days
+    max_ttl                = 31536000 # 1 year
+  }
+
+  # Handle SPA routing - redirect 404s to index.html
+  custom_error_response {
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/index.html"
+    error_caching_min_ttl = 0
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+
+  tags = {
+    Name = "Activity Database Distribution"
+  }
+}
+
+# S3 bucket policy - conditional based on CloudFront usage
 resource "aws_s3_bucket_policy" "activity_bucket_policy" {
   depends_on = [aws_s3_bucket_public_access_block.activity_bucket_public_access]
   bucket = aws_s3_bucket.activity_bucket.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect    = "Allow"
-      Principal = "*"
-      Action    = "s3:GetObject"
-      Resource  = "${aws_s3_bucket.activity_bucket.arn}/*"
-    }]
+    Statement = concat(
+      var.enable_cloudfront ? [
+        {
+          Effect = "Allow"
+          Principal = {
+            Service = "cloudfront.amazonaws.com"
+          }
+          Action   = "s3:GetObject"
+          Resource = "${aws_s3_bucket.activity_bucket.arn}/*"
+          Condition = {
+            StringEquals = {
+              "AWS:SourceArn" = aws_cloudfront_distribution.activity_distribution[0].arn
+            }
+          }
+        }
+      ] : [],
+      [
+        {
+          Effect    = "Allow"
+          Principal = "*"
+          Action    = "s3:GetObject"
+          Resource  = "${aws_s3_bucket.activity_bucket.arn}/*"
+        }
+      ]
+    )
   })
 }
 

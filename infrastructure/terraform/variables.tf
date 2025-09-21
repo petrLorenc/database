@@ -21,3 +21,26 @@ variable "openai_api_key" {
   type        = string
   sensitive   = true  # This ensures the value isn't shown in logs
 }
+
+variable "google_analytics_measurement_id" {
+  description = "Google Analytics 4 Measurement ID for frontend tracking"
+  type        = string
+  default     = ""
+  sensitive   = false
+}
+
+variable "environment" {
+  description = "Environment name (dev, staging, prod)"
+  type        = string
+  default     = "dev"
+  validation {
+    condition     = contains(["dev", "staging", "prod"], var.environment)
+    error_message = "Environment must be dev, staging, or prod."
+  }
+}
+
+variable "enable_cloudfront" {
+  description = "Enable CloudFront distribution (recommended for prod, optional for dev/staging)"
+  type        = bool
+  default     = false
+}

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import './ActivityPanel.css';
+import ActivityResult from './ActivityResult';
 import analyticsService from '../services/analyticsService';
 import logo from '../files/image.png';
 
@@ -296,115 +298,32 @@ const ActivityPanel = () => {
             ) : (
               <div className="activities-grid">
                 {filteredActivities.map(activity => (
-                  <div 
-                    key={activity.id} 
-                    className={`activity-card ${expandedActivity === activity.id ? 'expanded' : ''}`}
-                    onClick={() => handleActivityClick(activity.id)}
-                  >
-                    <div className="activity-header">
-                      <img 
-                        src={activity.thumbnail_url || "https://avatars.githubusercontent.com/u/7677243?s=48&v=4"} 
-                        alt={activity.title}
-                        className="activity-thumbnail"
-                        onError={(e) => {
-                          e.target.src = "https://avatars.githubusercontent.com/u/7677243?s=48&v=4";
-                        }}
-                      />
-                      <div className="activity-info">
-                        <h4 className="activity-title">{activity.title}</h4>
-                        <p className="activity-location">{activity.location || "Česká republika"}</p>
-                        <div className="activity-tags">
-                          {(() => {
-                            // Handle different data structures
-                            let allActivityTags = [];
-                            
-                            // New structure with separate arrays
-                            if (activity.location && Array.isArray(activity.location)) {
-                              allActivityTags = [
-                                ...(activity.location || []),
-                                ...(activity.tags || []),
-                                ...(activity.education_level || [])
-                              ];
-                            } 
-                            // Old structure with combined tags array
-                            else if (activity.tags && Array.isArray(activity.tags)) {
-                              allActivityTags = activity.tags;
-                            }
-                            
-                            return allActivityTags.slice(0, 3).map((tag, index) => (
-                              <span key={`${tag}-${index}`} className="tag-chip">{tag}</span>
-                            ));
-                          })()}
-                          {(() => {
-                            // Handle different data structures for count
-                            let allActivityTags = [];
-                            
-                            if (activity.location && Array.isArray(activity.location)) {
-                              allActivityTags = [
-                                ...(activity.location || []),
-                                ...(activity.tags || []),
-                                ...(activity.education_level || [])
-                              ];
-                            } else if (activity.tags && Array.isArray(activity.tags)) {
-                              allActivityTags = activity.tags;
-                            }
-                            
-                            if (allActivityTags.length > 3) {
-                              return <span className="tag-chip more">+{allActivityTags.length - 3}</span>;
-                            }
-                            return null;
-                          })()}
-                        </div>
-                      </div>
-                      <div className="expand-icon">
-                        {expandedActivity === activity.id ? '−' : '+'}
-                      </div>
+                  <div key={activity.id} className="activity-wrapper">
+                    <ActivityResult 
+                      activity={activity} 
+                      showFullContent={expandedActivity === activity.id}
+                      onToggleExpand={() => handleActivityClick(activity.id)}
+                    />
+                    
+                    {/* Add permanent link for each activity */}
+                    <div className="activity-actions">
+                      <Link 
+                        to={`/activity/${activity.id}`}
+                        className="activity-permalink"
+                        onClick={() => analyticsService.trackEvent('Activity Permalink Click', 'Activity Panel', activity.title)}
+                      >
+                        📋 Zobrazit detaily
+                      </Link>
+                      <a 
+                        href={`/activities/${activity.id}.html`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="activity-static-link"
+                        onClick={() => analyticsService.trackEvent('Static Page Link Click', 'Activity Panel', activity.title)}
+                      >
+                        🔗 Statická stránka
+                      </a>
                     </div>
-                    
-                    <p className="activity-description">
-                      {activity.short_description}
-                    </p>
-                    
-                    {expandedActivity === activity.id && (
-                      <div className="activity-expanded">
-                        <div className="activity-full-description"
-                             dangerouslySetInnerHTML={{ 
-                               __html: activity.long_description || activity.short_description 
-                             }}
-                        />
-                        {(() => {
-                          // Handle different data structures
-                          let allActivityTags = [];
-                          
-                          // New structure with separate arrays
-                          if (activity.location && Array.isArray(activity.location)) {
-                            allActivityTags = [
-                              ...(activity.location || []),
-                              ...(activity.tags || []),
-                              ...(activity.education_level || [])
-                            ];
-                          } 
-                          // Old structure with combined tags array
-                          else if (activity.tags && Array.isArray(activity.tags)) {
-                            allActivityTags = activity.tags;
-                          }
-                          
-                          if (allActivityTags.length > 0) {
-                            return (
-                              <div className="activity-all-tags">
-                                <strong>Všechny tagy:</strong>
-                                <div className="tags-list">
-                                  {allActivityTags.map((tag, index) => (
-                                    <span key={`${tag}-${index}`} className="tag-chip">{tag}</span>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          }
-                          return null;
-                        })()}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
