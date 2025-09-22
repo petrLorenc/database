@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { protectData } = require('./dataProtection');
+const { protectData } = require('./dataEncryption');
 
 /**
  * Build-time data processing script

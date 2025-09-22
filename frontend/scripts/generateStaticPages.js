@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { unprotectData } = require('./dataProtection');
+const { unprotectData } = require('./dataDecryption');
 
 /**
  * Generate static HTML pages for each activity for SEO purposes
