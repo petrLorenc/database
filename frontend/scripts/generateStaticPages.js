@@ -74,7 +74,7 @@ async function generateStaticPages() {
     for (const activity of activitiesData.activities) {
       const html = generateActivityHTML(activity);
       const filePath = path.join(staticDir, `${activity.id}.html`);
-      fs.writeFileSync(filePath, html);
+      fs.writeFileSync(filePath, html, 'utf8');
       console.log(`✅ Generated: /activities/${activity.id}.html`);
     }
     
@@ -87,6 +87,16 @@ async function generateStaticPages() {
     console.error('❌ Error generating static pages:', error);
     process.exit(1);
   }
+}
+
+function escapeHtml(text) {
+  if (typeof text !== 'string') return text;
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function generateActivityHTML(activity) {
@@ -102,33 +112,36 @@ function generateActivityHTML(activity) {
     allTags = activity.tags;
   }
 
-  // Clean description for meta tags
-  const cleanDescription = activity.short_description
-    ?.replace(/<[^>]*>/g, '')
-    ?.substring(0, 160) || '';
+  // Clean description for meta tags - escape HTML entities and ensure UTF-8 safety
+  const cleanDescription = (activity.short_description || '')
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/"/g, '&quot;') // Escape quotes
+    .replace(/'/g, '&#39;') // Escape single quotes
+    .replace(/&/g, '&amp;') // Escape ampersands
+    .substring(0, 160);
 
   return `<!DOCTYPE html>
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${activity.title} | Buď aktivní</title>
+  <title>${escapeHtml(activity.title)} | Buď aktivní</title>
   <meta name="description" content="${cleanDescription}">
-  <meta name="keywords" content="${allTags.join(', ')}">
+  <meta name="keywords" content="${escapeHtml(allTags.join(', '))}">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://your-domain.com/activities/${activity.id}">
-  <meta property="og:title" content="${activity.title}">
+  <meta property="og:title" content="${escapeHtml(activity.title)}">
   <meta property="og:description" content="${cleanDescription}">
-  <meta property="og:image" content="${activity.thumbnail_url}">
+  <meta property="og:image" content="${escapeHtml(activity.thumbnail_url)}">
   
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://your-domain.com/activities/${activity.id}">
-  <meta property="twitter:title" content="${activity.title}">
+  <meta property="twitter:title" content="${escapeHtml(activity.title)}">
   <meta property="twitter:description" content="${cleanDescription}">
-  <meta property="twitter:image" content="${activity.thumbnail_url}">
+  <meta property="twitter:image" content="${escapeHtml(activity.thumbnail_url)}">
   
   <!-- Canonical URL points to React page for better UX -->
   <link rel="canonical" href="https://your-domain.com/activity/${activity.id}">
@@ -149,14 +162,14 @@ function generateActivityHTML(activity) {
   {
     "@context": "https://schema.org",
     "@type": "Event",
-    "name": "${activity.title}",
+    "name": "${escapeHtml(activity.title)}",
     "description": "${cleanDescription}",
     "location": {
       "@type": "Place",
-      "name": "${activity.location || 'Česká republika'}"
+      "name": "${escapeHtml(activity.location || 'Česká republika')}"
     },
-    "image": "${activity.thumbnail_url}",
-    "keywords": "${allTags.join(', ')}",
+    "image": "${escapeHtml(activity.thumbnail_url)}",
+    "keywords": "${escapeHtml(allTags.join(', '))}",
     "url": "https://your-domain.com/activity/${activity.id}",
     "organizer": {
       "@type": "Organization",
@@ -289,11 +302,11 @@ function generateActivityHTML(activity) {
     <a href="/" class="back-link">← Zpět na všechny aktivity</a>
     
     <div class="activity-header">
-      <img src="${activity.thumbnail_url}" alt="${activity.title}" class="activity-thumbnail" 
+      <img src="${escapeHtml(activity.thumbnail_url)}" alt="${escapeHtml(activity.title)}" class="activity-thumbnail" 
            onerror="this.src='https://avatars.githubusercontent.com/u/7677243?s=48&v=4'">
       <div>
-        <h1 class="activity-title">${activity.title}</h1>
-        <p class="activity-location"><strong>📍 Lokace:</strong> ${activity.location || 'Česká republika'}</p>
+        <h1 class="activity-title">${escapeHtml(activity.title)}</h1>
+        <p class="activity-location"><strong>📍 Lokace:</strong> ${escapeHtml(activity.location || 'Česká republika')}</p>
       </div>
     </div>
     
@@ -303,7 +316,7 @@ function generateActivityHTML(activity) {
     
     <div class="activity-tags">
       <strong>🏷️ Kategorie:</strong><br><br>
-      ${allTags.map(tag => `<span class="activity-tag">${tag}</span>`).join('')}
+      ${allTags.map(tag => `<span class="activity-tag">${escapeHtml(tag)}</span>`).join('')}
     </div>
     
     <div class="react-links">
@@ -338,7 +351,7 @@ ${urls.map(url => `  <url>
   </url>`).join('\n')}
 </urlset>`;
 
-  fs.writeFileSync(sitemapPath, sitemap);
+  fs.writeFileSync(sitemapPath, sitemap, 'utf8');
   console.log('🗺️  Generated sitemap.xml');
 }
 

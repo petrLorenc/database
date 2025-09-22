@@ -253,3 +253,6 @@ frontend/.env.production
 .vscode
 frontend/scripts/restoreData.js
 frontend/public/data/activities_real.backup.json
+frontend/scripts/dataEncryption.js
+.gitignore
+frontend/scripts/cleanWorkspace.js

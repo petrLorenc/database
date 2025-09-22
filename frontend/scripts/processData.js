@@ -27,7 +27,7 @@ async function processDataFiles() {
     
     // Create backup of original data
     if (!fs.existsSync(backupActivitiesPath)) {
-      fs.writeFileSync(backupActivitiesPath, rawData);
+      fs.writeFileSync(backupActivitiesPath, rawData, 'utf8');
       console.log('💾 Backup created at activities_real.backup.json');
     }
     
@@ -35,7 +35,7 @@ async function processDataFiles() {
     const protectedData = protectData(activitiesData);
     
     // Write protected data (protectData already returns a JSON string)
-    fs.writeFileSync(protectedActivitiesPath, protectedData);
+    fs.writeFileSync(protectedActivitiesPath, protectedData, 'utf8');
     
     console.log('✅ Activities data protected successfully');
     console.log(`   Original size: ${rawData.length} bytes`);
@@ -52,7 +52,7 @@ async function processDataFiles() {
       activities: []
     };
     
-    fs.writeFileSync(activitiesPath, JSON.stringify(dummyData, null, 2));
+    fs.writeFileSync(activitiesPath, JSON.stringify(dummyData, null, 2), 'utf8');
     console.log('🛡️  Original file replaced with dummy data');
     
   } catch (error) {

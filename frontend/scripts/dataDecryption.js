@@ -24,30 +24,7 @@ function unprotectData(protectedString) {
       
       return JSON.parse(originalJson);
     }
-    
-    // Handle legacy version 1 (with character manipulation)
-    if (parsed.v === 1) {
-      const base64First = Buffer.from(parsed.d, 'base64').toString('utf8');
-      const manipulated = Buffer.from(base64First, 'base64').toString('utf8');
-      
-      // Reverse character manipulation
-      const original = manipulated.split('').map(char => {
-        const code = char.charCodeAt(0);
-        if (code >= 32 && code <= 126) {
-          return String.fromCharCode(((code - 32 - 13 + 95) % 95) + 32);
-        }
-        return char;
-      }).join('');
-      
-      // Verify checksum
-      const checksum = original.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 1000000;
-      if (checksum !== parsed.c) {
-        throw new Error('Data integrity check failed');
-      }
-      
-      return JSON.parse(original);
-    }
-    
+
     throw new Error('Unsupported protection version');
   } catch (error) {
     console.error('Error unprotecting data:', error);
