@@ -4,6 +4,7 @@ import ActivityResult from './ActivityResult';
 import analyticsService from '../services/analyticsService';
 import logo from '../files/image.png';
 import './ActivityPage.css';
+import { unprotectData } from '../utils/dataProtection';
 
 const ActivityPage = () => {
   const { id } = useParams();
@@ -18,17 +19,25 @@ const ActivityPage = () => {
         setLoading(true);
         setError(null);
         
-        console.log('ActivityPage: Loading activities data for ID:', id);
+        // Try to load protected data first, fallback to original
+        let activitiesData;
         
-        // Load data exactly like ActivityPanel does
-        const activitiesResponse = await fetch('/data/activities_real.json');
-        
-        if (!activitiesResponse.ok) {
-          throw new Error(`HTTP error! status: ${activitiesResponse.status}`);
+        try {
+          const protectedResponse = await fetch('/data/activities_protected.json');
+          if (protectedResponse.ok) {
+            const protectedData = await protectedResponse.json();
+            activitiesData = unprotectData(protectedData);
+          } else {
+            throw new Error('Protected data not available');
+          }
+        } catch (protectedError) {
+          // Fallback to original data
+          const activitiesResponse = await fetch('/data/activities_real.json');
+          if (!activitiesResponse.ok) {
+            throw new Error(`HTTP error! status: ${activitiesResponse.status}`);
+          }
+          activitiesData = await activitiesResponse.json();
         }
-        
-        const activitiesData = await activitiesResponse.json();
-        console.log('ActivityPage: Activities loaded:', activitiesData.activities?.length || 0);
         
         if (!activitiesData.activities || !Array.isArray(activitiesData.activities)) {
           throw new Error('Invalid activities data format');
@@ -36,16 +45,12 @@ const ActivityPage = () => {
         
         // Convert URL id to number for comparison
         const targetId = parseInt(id, 10);
-        console.log('ActivityPage: Looking for activity with ID:', targetId);
         
         const foundActivity = activitiesData.activities.find(a => {
           return parseInt(a.id, 10) === targetId;
         });
         
         if (!foundActivity) {
-          console.error('ActivityPage: Activity not found for ID:', targetId);
-          console.log('ActivityPage: Available IDs (first 10):', 
-            activitiesData.activities.slice(0, 10).map(a => a.id));
           setError(`Activity with ID ${targetId} not found`);
           return;
         }

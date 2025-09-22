@@ -4,6 +4,7 @@ import './ActivityPanel.css';
 import ActivityResult from './ActivityResult';
 import analyticsService from '../services/analyticsService';
 import logo from '../files/image.png';
+import { unprotectData } from '../utils/dataProtection';
 
 // Sample data as fallback - moved outside component to avoid dependency issues
 const sampleActivities = [
@@ -53,50 +54,22 @@ const ActivityPanel = () => {
   useEffect(() => {
     const loadActivities = async () => {
       try {
-        console.log('Loading activities data...');
-        const activitiesResponse = await fetch('/data/activities_real.json');
-        
-        if (!activitiesResponse.ok) {
-          throw new Error(`HTTP error! status: ${activitiesResponse.status}`);
-        }
-        
-        const activitiesData = await activitiesResponse.json();
-        console.log('Activities loaded:', activitiesData.activities?.length || 0);
-        
-        // Load unique tags data
-        console.log('Loading unique tags data...');
-        const tagsResponse = await fetch('/data/unique_tags.json');
-        
-        if (!tagsResponse.ok) {
-          throw new Error(`HTTP error loading tags! status: ${tagsResponse.status}`);
-        }
-        
-        const tagsData = await tagsResponse.json();
-        console.log('Tags loaded:', tagsData);
-        
-        if (activitiesData.activities && Array.isArray(activitiesData.activities)) {
-          setActivities(activitiesData.activities);
-          
-          // Use the unique tags from the separate file
-          setTagCategories({
-            location: tagsData.locations || [],
-            tags: tagsData.tags || [],
-            education_level: tagsData.education_levels || []
-          });
-        } else {
-          throw new Error('Invalid activities data format');
+        // Load protected data (this should be the only source in production)
+        const protectedResponse = await fetch('/data/activities_protected.json');
+        if (protectedResponse.ok) {
+          const protectedData = await protectedResponse.text();
+          const decodedData = unprotectData(protectedData);
+          const parsedData = typeof decodedData === 'string' ? JSON.parse(decodedData) : decodedData;
+          // Handle the structure {metadata, activities}
+          const activitiesArray = parsedData.activities || parsedData;
+          setActivities(activitiesArray);
+          setLoading(false);
+          return;
         }
       } catch (error) {
-        console.error('Error loading data:', error);
-        setError(error.message);
-        // Use sample data as fallback
-        setActivities(sampleActivities);
-        setTagCategories({
-          location: ["celá čr/online", "praha", "zahraničí"],
-          tags: ["soutěž", "výjezd do zahraničí", "stáž", "vzdělávání", "dobrovolnictví", "osobní rozvoj"],
-          education_level: ["student sš", "student vš", "student zš"]
-        });
-      } finally {
+        console.error('Error loading protected activities data:', error);
+        // In production, this should not happen - protected data should always be available
+        setError('Failed to load activities data');
         setLoading(false);
       }
     };

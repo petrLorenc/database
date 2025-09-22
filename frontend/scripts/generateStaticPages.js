@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { unprotectData } = require('./dataProtection');
 
 /**
  * Generate static HTML pages for each activity for SEO purposes
@@ -9,14 +10,23 @@ async function generateStaticPages() {
   console.log('🚀 Starting static page generation...');
   
   try {
-    // Load activities data
-    const dataPath = path.join(__dirname, '../public/data/activities_real.json');
+    // Load activities data (now from protected format)
+    const protectedDataPath = path.join(__dirname, '../public/data/activities_protected.json');
+    const fallbackDataPath = path.join(__dirname, '../public/data/activities_real.json');
     let activitiesData;
     
     try {
-      console.log('📊 Loading activities data from:', dataPath);
-      const rawData = fs.readFileSync(dataPath, 'utf8');
-      activitiesData = JSON.parse(rawData);
+      // Try to load protected data first
+      if (fs.existsSync(protectedDataPath)) {
+        console.log('📊 Loading protected activities data from:', protectedDataPath);
+        const rawProtectedData = fs.readFileSync(protectedDataPath, 'utf8');
+        activitiesData = unprotectData(rawProtectedData);
+        console.log('🔓 Successfully decoded protected data');
+      } else {
+        console.log('📊 Loading activities data from fallback:', fallbackDataPath);
+        const rawData = fs.readFileSync(fallbackDataPath, 'utf8');
+        activitiesData = JSON.parse(rawData);
+      }
     } catch (err) {
       console.warn('⚠️  Could not load real data, using sample data');
       // Fallback to sample data

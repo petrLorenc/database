@@ -1,7 +1,12 @@
 .venv
 .env
 docker-compose.real.yml
-activities_real.json
+
+# Original unprotected data files (keep out of git for security)
+frontend/public/data/activities_real.json
+frontend/public/data/activities_real.backup.json
+
+# Note: activities_protected.json WILL be committed
 
 
 # Byte-compiled / optimized / DLL files
@@ -246,3 +251,5 @@ frontend/.env.local
 frontend/.env.production
 
 .vscode
+frontend/scripts/restoreData.js
+frontend/public/data/activities_real.backup.json
