@@ -77,6 +77,62 @@ const ActivityPanel = () => {
     loadActivities();
   }, []);
 
+  // Load unique tags data
+  useEffect(() => {
+    const loadTags = async () => {
+      try {
+        console.log('Loading unique tags...');
+        const response = await fetch('/data/unique_tags.json');
+        if (response.ok) {
+          const tagsData = await response.json();
+          console.log('Tags data loaded:', tagsData);
+          setTagCategories({
+            location: tagsData.locations || [],
+            tags: tagsData.tags || [],
+            education_level: tagsData.education_levels || []
+          });
+        } else {
+          console.error('Failed to load tags data:', response.status, response.statusText);
+          // Fallback: extract tags from activities if available
+          extractTagsFromActivities();
+        }
+      } catch (error) {
+        console.error('Error loading tags data:', error);
+        // Fallback: extract tags from activities if available
+        extractTagsFromActivities();
+      }
+    };
+
+    const extractTagsFromActivities = () => {
+      if (activities.length > 0) {
+        const locations = new Set();
+        const tags = new Set();
+        const educationLevels = new Set();
+
+        activities.forEach(activity => {
+          if (activity.location && Array.isArray(activity.location)) {
+            activity.location.forEach(loc => locations.add(loc));
+          }
+          if (activity.tags && Array.isArray(activity.tags)) {
+            activity.tags.forEach(tag => tags.add(tag));
+          }
+          if (activity.education_level && Array.isArray(activity.education_level)) {
+            activity.education_level.forEach(level => educationLevels.add(level));
+          }
+        });
+
+        setTagCategories({
+          location: Array.from(locations).sort(),
+          tags: Array.from(tags).sort(),
+          education_level: Array.from(educationLevels).sort()
+        });
+        console.log('Tags extracted from activities');
+      }
+    };
+
+    loadTags();
+  }, [activities]); // Add activities as dependency so it re-runs when activities load
+
   // Filter activities based on search term and selected tags
   const filteredActivities = useMemo(() => {
     return activities.filter(activity => {

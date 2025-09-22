@@ -241,7 +241,6 @@ backend/deployments
 .~lock.*
 database_dump*
 data/database_dump.csv
-unique_tags.json
 data/*real*.json
 
 frontend/node_modules

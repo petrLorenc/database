@@ -30,6 +30,11 @@ function base64ToUtf8Fallback(str) {
 // Main data unprotection function for browser use
 export function unprotectData(protectedString) {
   try {
+    // Handle empty or invalid input
+    if (!protectedString || typeof protectedString !== 'string' || protectedString.trim() === '') {
+      throw new Error('Empty or invalid protected data');
+    }
+    
     const parsed = JSON.parse(protectedString);
     
     // Handle version 2 (UTF-8 safe) or default to version 2

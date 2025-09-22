@@ -25,8 +25,13 @@ const ActivityPage = () => {
         try {
           const protectedResponse = await fetch('/data/activities_protected.json');
           if (protectedResponse.ok) {
-            const protectedData = await protectedResponse.json();
-            activitiesData = unprotectData(protectedData);
+            const protectedText = await protectedResponse.text();
+            if (protectedText && protectedText.trim() !== '') {
+              const protectedData = JSON.parse(protectedText);
+              activitiesData = unprotectData(protectedData);
+            } else {
+              throw new Error('Protected data file is empty');
+            }
           } else {
             throw new Error('Protected data not available');
           }

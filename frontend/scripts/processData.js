@@ -54,7 +54,16 @@ async function processDataFiles() {
     
     fs.writeFileSync(activitiesPath, JSON.stringify(dummyData, null, 2), 'utf8');
     console.log('🛡️  Original file replaced with dummy data');
+
+    // Also copy unique_tags.json to ensure it's available
+    const uniqueTagsPath = path.join(publicDataDir, 'unique_tags.json');
+    const buildUniqueTagsPath = path.join(buildDataDir, 'data', 'unique_tags.json');
     
+    if (fs.existsSync(uniqueTagsPath) && fs.existsSync(path.dirname(buildUniqueTagsPath))) {
+      fs.copyFileSync(uniqueTagsPath, buildUniqueTagsPath);
+      console.log('📋 Unique tags copied to build directory');
+    }
+
   } catch (error) {
     console.error('❌ Error processing activities data:', error);
     throw error;
