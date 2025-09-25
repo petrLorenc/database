@@ -1,0 +1,8 @@
+services:
+  # Frontend production build - serves static HTML files properly
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile.prod
+    ports:
+      - "3000:80"

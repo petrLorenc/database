@@ -399,7 +399,7 @@
 
 .activities-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(3, 1fr); /* Exactly 3 columns on desktop */
   gap: 20px;
   max-width: 1400px;
   margin: 0 auto;
@@ -659,7 +659,7 @@
   }
 
   .activities-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: 1fr; /* Single column on tablet and below */
     gap: 16px;
   }
   
@@ -957,13 +957,18 @@
 
 /* Adjust activities grid for new layout */
 .activities-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Maintain 3-column grid */
+  gap: 20px;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .activities-grid {
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: 16px;
+  }
+  
   .activity-actions {
     flex-direction: column;
     gap: 0.5rem;

@@ -52,7 +52,22 @@ const ActivityPanel = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(50); // Show only 50 items at a time
+  
+  // Responsive pagination: 30 items for desktop (3x10), 15 for mobile (1x15)
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const itemsPerPage = windowWidth <= 768 ? 15 : 30;
+  
+  // Listen for window resize to adjust pagination
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Reset current page when items per page changes due to screen size change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage]);
 
   // Load activities data
   useEffect(() => {
