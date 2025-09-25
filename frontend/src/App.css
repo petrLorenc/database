@@ -11,6 +11,7 @@ body {
   color: #333;
   min-height: 100vh;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .app {
@@ -31,6 +32,7 @@ body {
   animation: fadeInUp 0.6s ease-out both;
   width: 100%;
   margin-right: 0; /* Remove any existing margin */
+  overflow: visible;
 }
 
 .activity-section {
@@ -40,6 +42,7 @@ body {
   min-height: 0;
   width: 100%;
   max-width: 100%; /* Remove the calc restriction */
+  overflow: visible;
 }
 
 .app-footer {

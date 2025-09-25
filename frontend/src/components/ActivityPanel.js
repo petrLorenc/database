@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import './ActivityPanel.css';
 import ActivityResult from './ActivityResult';
@@ -47,8 +48,16 @@ const ActivityPanel = () => {
     education_level: []
   });
   const [expandedActivity, setExpandedActivity] = useState(null);
+  const [locationFiltersExpanded, setLocationFiltersExpanded] = useState(false);
+  const [activityFiltersExpanded, setActivityFiltersExpanded] = useState(false);
+  const [educationFiltersExpanded, setEducationFiltersExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Refs for dropdown positioning
+  const locationButtonRef = useRef(null);
+  const activityButtonRef = useRef(null);
+  const educationButtonRef = useRef(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -240,6 +249,71 @@ const ActivityPanel = () => {
     }
   }, [searchTerm]);
 
+  // Portal-based dropdown component
+  const PortalDropdown = ({ isOpen, buttonRef, children, onClose }) => {
+    const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
+
+    useEffect(() => {
+      if (isOpen && buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        setPosition({
+          top: rect.bottom + window.scrollY,
+          left: rect.left + window.scrollX,
+          width: Math.max(rect.width, 280)
+        });
+      }
+    }, [isOpen, buttonRef]);
+
+    useEffect(() => {
+      if (isOpen) {
+        const handleClickOutside = (event) => {
+          if (buttonRef.current && !buttonRef.current.contains(event.target) && 
+              !event.target.closest('.filter-dropdown-portal')) {
+            onClose();
+          }
+        };
+        const handleScroll = () => onClose();
+        const handleResize = () => onClose();
+
+        document.addEventListener('mousedown', handleClickOutside);
+        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('resize', handleResize);
+        
+        return () => {
+          document.removeEventListener('mousedown', handleClickOutside);
+          window.removeEventListener('scroll', handleScroll);
+          window.removeEventListener('resize', handleResize);
+        };
+      }
+    }, [isOpen, onClose, buttonRef]);
+
+    if (!isOpen) return null;
+
+    return createPortal(
+      <div 
+        className="filter-dropdown-portal"
+        style={{
+          position: 'absolute',
+          top: position.top,
+          left: position.left,
+          width: position.width,
+          zIndex: 9999,
+          background: 'white',
+          border: '2px solid #667eea',
+          borderTop: 'none',
+          borderRadius: '0 0 12px 12px',
+          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.25)',
+          maxHeight: '250px',
+          overflowY: 'auto',
+          animation: 'slideDown 0.2s ease'
+        }}
+      >
+        {children}
+      </div>,
+      document.body
+    );
+  };
+
   if (loading) {
     return (
       <div className={`activity-panel expanded`}>
@@ -281,77 +355,123 @@ const ActivityPanel = () => {
       </div>
 
       <div className="activity-panel-main">
-          <div className="search-section">
-            <div className="search-input-container">
-              <input
-                type="text"
-                placeholder="Hledat aktivity..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-              <div className="search-icon">🔍</div>
-            </div>
-            
-            {(searchTerm || selectedTags.length > 0) && (
-              <button 
-                className="clear-filters-button"
-                onClick={clearFilters}
-              >
-                Vymazat filtry
-              </button>
-            )}
-          </div>
+          {/* New compact filter and search bar */}
+          <div className="filter-search-bar">
+            <div className="filters-section">
+              {/* Location Filter */}
+              <div className="filter-group">
+                <button 
+                  ref={locationButtonRef}
+                  className={`filter-dropdown-toggle ${locationFiltersExpanded ? 'expanded' : ''}`}
+                  onClick={() => setLocationFiltersExpanded(!locationFiltersExpanded)}
+                >
+                  <span className="filter-title">Lokalita</span>
+                  <span className="filter-count">({tagCategories.location.filter(tag => selectedTags.includes(tag)).length})</span>
+                  <span className="dropdown-arrow">{locationFiltersExpanded ? '▲' : '▼'}</span>
+                </button>
+                <PortalDropdown 
+                  isOpen={locationFiltersExpanded} 
+                  buttonRef={locationButtonRef}
+                  onClose={() => setLocationFiltersExpanded(false)}
+                >
+                  <div className="tags-container" style={{ padding: '12px' }}>
+                    {tagCategories.location.map(tag => (
+                      <button
+                        key={`location-${tag}`}
+                        className={`tag location-tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                        onClick={() => handleTagToggle(tag)}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </PortalDropdown>
+              </div>
 
-          <div className="tags-section">
-            <h3>Filtry podle kategorií</h3>
-            
-            {/* Location Tags */}
-            <div className="tag-category">
-              <h4 className="category-title">Lokalita</h4>
-              <div className="tags-container">
-                {tagCategories.location.map(tag => (
-                  <button
-                    key={`location-${tag}`}
-                    className={`tag location-tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
-                    onClick={() => handleTagToggle(tag)}
-                  >
-                    {tag}
-                  </button>
-                ))}
+              {/* Activity Type Filter */}
+              <div className="filter-group">
+                <button 
+                  ref={activityButtonRef}
+                  className={`filter-dropdown-toggle ${activityFiltersExpanded ? 'expanded' : ''}`}
+                  onClick={() => setActivityFiltersExpanded(!activityFiltersExpanded)}
+                >
+                  <span className="filter-title">Druh aktivity</span>
+                  <span className="filter-count">({tagCategories.tags.filter(tag => selectedTags.includes(tag)).length})</span>
+                  <span className="dropdown-arrow">{activityFiltersExpanded ? '▲' : '▼'}</span>
+                </button>
+                <PortalDropdown 
+                  isOpen={activityFiltersExpanded} 
+                  buttonRef={activityButtonRef}
+                  onClose={() => setActivityFiltersExpanded(false)}
+                >
+                  <div className="tags-container" style={{ padding: '12px' }}>
+                    {tagCategories.tags.map(tag => (
+                      <button
+                        key={`tags-${tag}`}
+                        className={`tag general-tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                        onClick={() => handleTagToggle(tag)}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </PortalDropdown>
+              </div>
+
+              {/* Education Level Filter */}
+              <div className="filter-group">
+                <button 
+                  ref={educationButtonRef}
+                  className={`filter-dropdown-toggle ${educationFiltersExpanded ? 'expanded' : ''}`}
+                  onClick={() => setEducationFiltersExpanded(!educationFiltersExpanded)}
+                >
+                  <span className="filter-title">Vzdělání</span>
+                  <span className="filter-count">({tagCategories.education_level.filter(tag => selectedTags.includes(tag)).length})</span>
+                  <span className="dropdown-arrow">{educationFiltersExpanded ? '▲' : '▼'}</span>
+                </button>
+                <PortalDropdown 
+                  isOpen={educationFiltersExpanded} 
+                  buttonRef={educationButtonRef}
+                  onClose={() => setEducationFiltersExpanded(false)}
+                >
+                  <div className="tags-container" style={{ padding: '12px' }}>
+                    {tagCategories.education_level.map(tag => (
+                      <button
+                        key={`education-${tag}`}
+                        className={`tag education-tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                        onClick={() => handleTagToggle(tag)}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </PortalDropdown>
               </div>
             </div>
 
-            {/* General Tags */}
-            <div className="tag-category">
-              <h4 className="category-title">Druh aktivity</h4>
-              <div className="tags-container">
-                {tagCategories.tags.map(tag => (
-                  <button
-                    key={`tags-${tag}`}
-                    className={`tag general-tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
-                    onClick={() => handleTagToggle(tag)}
-                  >
-                    {tag}
-                  </button>
-                ))}
+            {/* Search section on the right */}
+            <div className="search-section-right">
+              {(searchTerm || selectedTags.length > 0) && (
+                <button 
+                  className="clear-filters-button"
+                  onClick={clearFilters}
+                >
+                  Vymazat filtry
+                </button>
+              )}
+              
+              <div className="search-input-container">
+                <input
+                  type="text"
+                  placeholder="Hledat aktivity..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+                <div className="search-icon">🔍</div>
               </div>
-            </div>
-
-            {/* Education Level Tags */}
-            <div className="tag-category">
-              <h4 className="category-title">Vzdělání</h4>
-              <div className="tags-container">
-                {tagCategories.education_level.map(tag => (
-                  <button
-                    key={`education-${tag}`}
-                    className={`tag education-tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
-                    onClick={() => handleTagToggle(tag)}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
+              
+              
             </div>
           </div>
 
