@@ -218,12 +218,13 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  display: flex;
+  /* display: flex; */
   align-items: center;
   gap: 10px;
-  min-width: 140px;
+  width: 250px;
   justify-content: space-between;
   height: 48px;
+  box-sizing: border-box;
 }
 
 .filter-dropdown-toggle:hover {
@@ -282,6 +283,25 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+/* Single column layout for portal dropdowns */
+.tags-container-portal {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tags-container-portal .tag {
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
 }
 
 .search-section-right {

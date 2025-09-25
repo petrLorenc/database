@@ -256,10 +256,11 @@ const ActivityPanel = () => {
     useEffect(() => {
       if (isOpen && buttonRef.current) {
         const rect = buttonRef.current.getBoundingClientRect();
+        // Account for button border width (2px on each side = 4px total)
         setPosition({
           top: rect.bottom + window.scrollY,
           left: rect.left + window.scrollX,
-          width: Math.max(rect.width, 280)
+          width: rect.width
         });
       }
     }, [isOpen, buttonRef]);
@@ -305,7 +306,8 @@ const ActivityPanel = () => {
           boxShadow: '0 12px 32px rgba(0, 0, 0, 0.25)',
           maxHeight: '250px',
           overflowY: 'auto',
-          animation: 'slideDown 0.2s ease'
+          animation: 'slideDown 0.2s ease',
+          boxSizing: 'border-box'
         }}
       >
         {children}
@@ -374,7 +376,7 @@ const ActivityPanel = () => {
                   buttonRef={locationButtonRef}
                   onClose={() => setLocationFiltersExpanded(false)}
                 >
-                  <div className="tags-container" style={{ padding: '12px' }}>
+                  <div className="tags-container-portal">
                     {tagCategories.location.map(tag => (
                       <button
                         key={`location-${tag}`}
@@ -404,7 +406,7 @@ const ActivityPanel = () => {
                   buttonRef={activityButtonRef}
                   onClose={() => setActivityFiltersExpanded(false)}
                 >
-                  <div className="tags-container" style={{ padding: '12px' }}>
+                  <div className="tags-container-portal">
                     {tagCategories.tags.map(tag => (
                       <button
                         key={`tags-${tag}`}
@@ -434,7 +436,7 @@ const ActivityPanel = () => {
                   buttonRef={educationButtonRef}
                   onClose={() => setEducationFiltersExpanded(false)}
                 >
-                  <div className="tags-container" style={{ padding: '12px' }}>
+                  <div className="tags-container-portal">
                     {tagCategories.education_level.map(tag => (
                       <button
                         key={`education-${tag}`}
@@ -459,7 +461,7 @@ const ActivityPanel = () => {
                   Vymazat filtry
                 </button>
               )}
-              
+
               <div className="search-input-container">
                 <input
                   type="text"
