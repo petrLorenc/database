@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import './ActivityPanel.css';
 import ActivityResult from './ActivityResult';
@@ -49,6 +49,10 @@ const ActivityPanel = () => {
   const [expandedActivity, setExpandedActivity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(50); // Show only 50 items at a time
 
   // Load activities data
   useEffect(() => {
@@ -161,7 +165,21 @@ const ActivityPanel = () => {
     });
   }, [activities, searchTerm, selectedTags]);
 
-  const handleTagToggle = (tag) => {
+  // Paginate the filtered activities for better performance
+  const paginatedActivities = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredActivities.slice(startIndex, endIndex);
+  }, [filteredActivities, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredActivities.length / itemsPerPage);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedTags]);
+
+  const handleTagToggle = useCallback((tag) => {
     const wasSelected = selectedTags.includes(tag);
     setSelectedTags(prev => 
       prev.includes(tag) 
@@ -170,9 +188,9 @@ const ActivityPanel = () => {
     );
     // Track tag selection/deselection
     analyticsService.trackTagSelection(tag, !wasSelected);
-  };
+  }, [selectedTags]);
 
-  const handleActivityClick = (activityId) => {
+  const handleActivityClick = useCallback((activityId) => {
     const activity = activities.find(a => a.id === activityId);
     const wasExpanded = expandedActivity === activityId;
     
@@ -186,14 +204,15 @@ const ActivityPanel = () => {
       // Always track the click
       analyticsService.trackActivityClick(activity.title, activityId);
     }
-  };
+  }, [activities, expandedActivity]);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearchTerm('');
     setSelectedTags([]);
+    setCurrentPage(1); // Reset pagination
     // Track filter clearing
     analyticsService.trackEvent('Clear Filters', 'Activity Panel');
-  };
+  }, []);
 
   // Track search actions with debounce effect
   useEffect(() => {
@@ -239,6 +258,9 @@ const ActivityPanel = () => {
           <div className="header-text">
             <h1>Aktivity ({filteredActivities.length})</h1>
             <p>Prozkoumejte všechny dostupné aktivity a najděte ty, které vás zajímají</p>
+            {totalPages > 1 && (
+              <p style={{fontSize: '14px', opacity: 0.8}}>Strana {currentPage} z {totalPages} ({paginatedActivities.length} aktivit zobrazeno)</p>
+            )}
           </div>
         </div>
       </div>
@@ -325,37 +347,85 @@ const ActivityPanel = () => {
                 {error && <p style={{color: '#6c757d', fontSize: '12px'}}>Aktuálně zobrazuji ukázková data.</p>}
               </div>
             ) : (
-              <div className="activities-grid">
-                {filteredActivities.map(activity => (
-                  <div key={activity.id} className="activity-wrapper">
-                    <ActivityResult 
-                      activity={activity} 
-                      showFullContent={expandedActivity === activity.id}
-                      onToggleExpand={() => handleActivityClick(activity.id)}
-                    />
-                    
-                    {/* Add permanent link for each activity */}
-                    <div className="activity-actions">
-                      <Link 
-                        to={`/activity/${activity.id}`}
-                        className="activity-permalink"
-                        onClick={() => analyticsService.trackEvent('Activity Permalink Click', 'Activity Panel', activity.title)}
-                      >
-                        📋 Zobrazit detaily
-                      </Link>
-                      <a 
-                        href={`/activities/${activity.id}.html`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="activity-static-link"
-                        onClick={() => analyticsService.trackEvent('Static Page Link Click', 'Activity Panel', activity.title)}
-                      >
-                        🔗 Statická stránka
-                      </a>
-                    </div>
+              <>
+                {/* Pagination controls - top */}
+                {totalPages > 1 && (
+                  <div className="pagination-controls">
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="pagination-btn"
+                    >
+                      ← Předchozí
+                    </button>
+                    <span className="pagination-info">
+                      Strana {currentPage} z {totalPages}
+                    </span>
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="pagination-btn"
+                    >
+                      Následující →
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+                
+                <div className="activities-grid">
+                  {paginatedActivities.map(activity => (
+                    <div key={activity.id} className="activity-wrapper">
+                      <ActivityResult 
+                        activity={activity} 
+                        showFullContent={expandedActivity === activity.id}
+                        onToggleExpand={() => handleActivityClick(activity.id)}
+                      />
+                      
+                      {/* Add permanent link for each activity */}
+                      <div className="activity-actions">
+                        <Link 
+                          to={`/activity/${activity.id}`}
+                          className="activity-permalink"
+                          onClick={() => analyticsService.trackEvent('Activity Permalink Click', 'Activity Panel', activity.title)}
+                        >
+                          📋 Zobrazit detaily
+                        </Link>
+                        <a 
+                          href={`/activities/${activity.id}.html`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="activity-static-link"
+                          onClick={() => analyticsService.trackEvent('Static Page Link Click', 'Activity Panel', activity.title)}
+                        >
+                          🔗 Statická stránka
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Pagination controls - bottom */}
+                {totalPages > 1 && (
+                  <div className="pagination-controls">
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="pagination-btn"
+                    >
+                      ← Předchozí
+                    </button>
+                    <span className="pagination-info">
+                      Strana {currentPage} z {totalPages}
+                    </span>
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="pagination-btn"
+                    >
+                      Následující →
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

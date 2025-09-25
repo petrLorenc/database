@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
 import './ActivityResult.css';
 import analyticsService from '../services/analyticsService';
 
-const ActivityResult = ({ 
+const ActivityResult = memo(({ 
   activity, 
   showFullContent = false, 
   onToggleExpand = null,
@@ -49,6 +49,7 @@ const ActivityResult = ({
           src={activity.thumbnail_url} 
           alt={activity.title}
           className="activity-thumbnail"
+          loading="lazy"
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = '/placeholder-image.jpg'; // Fallback image
@@ -117,6 +118,6 @@ const ActivityResult = ({
       </div>
     </div>
   );
-};
+});
 
 export default ActivityResult;

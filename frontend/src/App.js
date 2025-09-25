@@ -5,6 +5,7 @@ import ChatInterface from './components/ChatInterface';
 import ActivityPanel from './components/ActivityPanel';
 import ActivityPage from './components/ActivityPage';
 import analyticsService from './services/analyticsService';
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
