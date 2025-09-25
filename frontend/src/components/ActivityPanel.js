@@ -325,6 +325,9 @@ const ActivityPanel = () => {
             <div className="header-text">
               <h1>Aktivity</h1>
             </div>
+            <a href="https://budaktivni.cz" target="_blank" rel="noopener noreferrer" className="header-button">
+              Navštívit budaktivni.cz
+            </a>
           </div>
         </div>
         
@@ -353,6 +356,9 @@ const ActivityPanel = () => {
               <p style={{fontSize: '14px', opacity: 0.8}}>Strana {currentPage} z {totalPages} ({paginatedActivities.length} aktivit zobrazeno)</p>
             )}
           </div>
+          <a href="https://budaktivni.cz" target="_blank" rel="noopener noreferrer" className="header-button">
+            Navštívit budaktivni.cz
+          </a>
         </div>
       </div>
 

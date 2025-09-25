@@ -48,8 +48,8 @@
 }
 
 .activity-panel-logo {
-  width: 180px;
-  height: 80px;
+  width: 240px;
+  height: 100px;
   object-fit: contain;
   flex-shrink: 0;
   background: white;
@@ -67,6 +67,35 @@
 
 .header-text {
   flex: 1;
+}
+
+.header-button {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  flex-shrink: 0;
+}
+
+.header-button:hover {
+  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.4);
+  text-decoration: none;
+  color: white;
+}
+
+.header-button:active {
+  transform: translateY(-1px);
 }
 
 .activity-panel.expanded .activity-panel-header {
@@ -946,8 +975,8 @@
   }
   
   .activity-panel-logo {
-    width: 70px;
-    height: 70px;
+    width: 90px;
+    height: 90px;
   }
 }
 
@@ -994,8 +1023,8 @@
   }
   
   .activity-panel-logo {
-    width: 60px;
-    height: 60px;
+    width: 75px;
+    height: 75px;
     border-radius: 10px;
     padding: 6px;
   }
@@ -1007,12 +1036,17 @@
   .activity-panel-header h1 {
     font-size: 1.8rem;
   }
+
+  .header-button {
+    padding: 10px 18px;
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 480px) {
   .activity-panel-logo {
-    width: 50px;
-    height: 50px;
+    width: 65px;
+    height: 65px;
     border-radius: 8px;
     padding: 5px;
   }
@@ -1024,12 +1058,17 @@
   .activity-panel-header h1 {
     font-size: 1.5rem;
   }
+
+  .header-button {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 320px) {
   .activity-panel-logo {
-    width: 45px;
-    height: 45px;
+    width: 55px;
+    height: 55px;
     border-radius: 6px;
     padding: 4px;
   }
@@ -1040,6 +1079,11 @@
   
   .activity-panel-header h1 {
     font-size: 1.3rem;
+  }
+
+  .header-button {
+    padding: 6px 12px;
+    font-size: 12px;
   }
 }
 
