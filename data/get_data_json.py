@@ -108,7 +108,7 @@ for idx, page in enumerate(result):
             
             "short_description": subtitle,
             "long_description": description,
-            "thumbnail_url": "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
+            "thumbnail_url": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSI4IiBmaWxsPSIjMjE5NkYzIi8+CiAgPHBhdGggZD0iTTE0IDEydjI0aDhDMjYuNCAzNiAzMCAzMi40IDMwIDI4YzAtMi40LTEuMi00LjQtMy01LjZDMjguMiAyMS40IDI5IDIwLjIgMjkgMThjMC0zLjMtMi43LTYtNi02SDE0em00IDRoNGMxLjEgMCAyIC45IDIgMnMtLjkgMi0yIDJoLTRWMTZ6bTAgOGg2YzEuNyAwIDMgMS4zIDMgM3MtMS4zIDMtMyAzaC02VjI0eiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+",
             "created_at": "2025-01-15T12:00:00Z",
             "updated_at": "2025-06-20T14:30:00Z",
         }

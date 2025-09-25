@@ -38,7 +38,7 @@ async function generateStaticPages() {
             tags: ["soutěž", "student sš", "celá čr/online"],
             short_description: "SOČ je prestižní soutěž pro středoškolské studenty. Ti nejlepší mají možnost pokračovat na zahraniční soutěže.",
             long_description: "SOČ je prestižní soutěž pro středoškolské studenty. Ti nejlepší mají možnost pokračovat na zahraniční soutěže. Pro řadu účastníků je soutěž počátkem jejich vědecké kariéry.",
-            thumbnail_url: "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
+            thumbnail_url: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSI4IiBmaWxsPSIjMjE5NkYzIi8+CiAgPHBhdGggZD0iTTE0IDEydjI0aDhDMjYuNCAzNiAzMCAzMi40IDMwIDI4YzAtMi40LTEuMi00LjQtMy01LjZDMjguMiAyMS40IDI5IDIwLjIgMjkgMThjMC0zLjMtMi43LTYtNi02SDE0em00IDRoNGMxLjEgMCAyIC45IDIgMnMtLjkgMi0yIDJoLTRWMTZ6bTAgOGg2YzEuNyAwIDMgMS4zIDMgM3MtMS4zIDMtMyAzaC02VjI0eiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+",
             location: "Česká republika"
           },
           {
@@ -47,7 +47,7 @@ async function generateStaticPages() {
             tags: ["výjezd do zahraničí", "stáž"],
             short_description: "S AIESEC máš možnost vyjet na dobrovolnickou stáž nehledě na to, zda jsi už na vysoké nebo už ne.",
             long_description: "S AIESEC máš možnost vyjet na dobrovolnickou stáž nehledě na to, zda jsi už na vysoké nebo už ne, jako student můžeš vyjet na stáže ve startupech.",
-            thumbnail_url: "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
+            thumbnail_url: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSI4IiBmaWxsPSIjMjE5NkYzIi8+CiAgPHBhdGggZD0iTTE0IDEydjI0aDhDMjYuNCAzNiAzMCAzMi40IDMwIDI4YzAtMi40LTEuMi00LjQtMy01LjZDMjguMiAyMS40IDI5IDIwLjIgMjkgMThjMC0zLjMtMi43LTYtNi02SDE0em00IDRoNGMxLjEgMCAyIC45IDIgMnMtLjkgMi0yIDJoLTRWMTZ6bTAgOGg2YzEuNyAwIDMgMS4zIDMgM3MtMS4zIDMtMyAzaC02VjI0eiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+",
             location: "Česká republika"
           },
           {
@@ -56,7 +56,7 @@ async function generateStaticPages() {
             tags: ["výjezd do zahraničí", "vzdělávání", "student vš"],
             short_description: "Erasmus+ nabízí možnosti studia a stáží v zahraničí pro studenty vysokých škol.",
             long_description: "Erasmus+ je program Evropské unie pro vzdělávání, odbornou přípravu, mládež a sport. Nabízí možnosti studia a stáží v zahraničí.",
-            thumbnail_url: "https://avatars.githubusercontent.com/u/7677243?s=48&v=4",
+            thumbnail_url: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSI4IiBmaWxsPSIjMjE5NkYzIi8+CiAgPHBhdGggZD0iTTE0IDEydjI0aDhDMjYuNCAzNiAzMCAzMi40IDMwIDI4YzAtMi40LTEuMi00LjQtMy01LjZDMjguMiAyMS40IDI5IDIwLjIgMjkgMThjMC0zLjMtMi43LTYtNi02SDE0em00IDRoNGMxLjEgMCAyIC45IDIgMnMtLjkgMi0yIDJoLTRWMTZ6bTAgOGg2YzEuNyAwIDMgMS4zIDMgM3MtMS4zIDMtMyAzaC02VjI0eiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+",
             location: "Evropa"
           }
         ]
@@ -299,7 +299,7 @@ function generateActivityHTML(activity) {
     
     <div class="activity-header">
       <img src="${escapeHtml(activity.thumbnail_url)}" alt="${escapeHtml(activity.title)}" class="activity-thumbnail" 
-           onerror="this.src='https://avatars.githubusercontent.com/u/7677243?s=48&v=4'">
+           onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSI4IiBmaWxsPSIjMjE5NkYzIi8+CiAgPHBhdGggZD0iTTE0IDEydjI0aDhDMjYuNCAzNiAzMCAzMi40IDMwIDI4YzAtMi40LTEuMi00LjQtMy01LjZDMjguMiAyMS40IDI5IDIwLjIgMjkgMThjMC0zLjMtMi43LTYtNi02SDE0em00IDRoNGMxLjEgMCAyIC45IDIgMnMtLjkgMi0yIDJoLTRWMTZ6bTAgOGg2YzEuNyAwIDMgMS4zIDMgM3MtMS4zIDMtMyAzaC02VjI0eiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+'">
       <div>
         <h1 class="activity-title">${escapeHtml(activity.title)}</h1>
         <p class="activity-location"><strong>📍 Lokace:</strong> ${escapeHtml(activity.location || 'Česká republika')}</p>
