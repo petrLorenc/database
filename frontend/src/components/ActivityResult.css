@@ -151,6 +151,36 @@
   transform: rotate(180deg);
 }
 
+/* Activity actions container for expand button and share link */
+.activity-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.activity-share-link {
+  background: #6c757d;
+  color: white;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.activity-share-link:hover {
+  background: #5a6268;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
 /* Animations */
 @keyframes slideInResult {
   from {
@@ -215,6 +245,18 @@
     padding: 7px 14px;
     border-radius: 16px;
   }
+  
+  .activity-actions {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  
+  .activity-share-link {
+    font-size: 11px;
+    padding: 6px 10px;
+    text-align: center;
+  }
 }
 
 @media (max-width: 480px) {
@@ -263,6 +305,15 @@
     font-size: 11px;
     padding: 6px 12px;
     border-radius: 14px;
+  }
+  
+  .activity-actions {
+    gap: 6px;
+  }
+  
+  .activity-share-link {
+    font-size: 10px;
+    padding: 5px 8px;
   }
 }
 

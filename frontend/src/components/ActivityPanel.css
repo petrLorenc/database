@@ -1077,88 +1077,21 @@
   }
 }
 
-/* Activity wrapper and actions for the new hybrid approach */
-.activity-wrapper {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 1.5rem;
-  transition: box-shadow 0.2s ease;
-}
-
-.activity-wrapper:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.activity-actions {
-  display: flex;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  background: #f8f9fa;
-  border-top: 1px solid #e9ecef;
-  justify-content: center;
-}
-
-.activity-permalink,
-.activity-static-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-
-.activity-permalink {
-  background: #007bff;
-  color: white;
-}
-
-.activity-permalink:hover {
-  background: #0056b3;
-  color: white;
-  transform: translateY(-1px);
-}
-
-.activity-static-link {
-  background: #6c757d;
-  color: white;
-}
-
-.activity-static-link:hover {
-  background: #5a6268;
-  color: white;
-  transform: translateY(-1px);
-}
-
-/* Adjust activities grid for new layout */
-.activities-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Maintain 3-column grid */
-  gap: 20px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .activities-grid {
-    grid-template-columns: 1fr; /* Single column on mobile */
-    gap: 16px;
-  }
-  
-  .activity-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .activity-permalink,
-  .activity-static-link {
-    width: 100%;
-    justify-content: center;
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .activity-panel,
+  .activity-card,
+  .filter-search-bar,
+  .filter-dropdown-toggle,
+  .filter-dropdown,
+  .activities-list,
+  .activity-panel-header h2,
+  .toggle-button,
+  .tag,
+  .activity-thumbnail,
+  .expand-icon {
+    transition: none;
+    animation: none;
   }
 }
 

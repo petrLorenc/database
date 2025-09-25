@@ -143,18 +143,14 @@ function generateActivityHTML(activity) {
   <meta property="twitter:description" content="${cleanDescription}">
   <meta property="twitter:image" content="${escapeHtml(activity.thumbnail_url)}">
   
-  <!-- Canonical URL points to React page for better UX -->
-  <link rel="canonical" href="https://your-domain.com/activity/${activity.id}">
+  <!-- Canonical URL points to main app for better UX -->
+  <link rel="canonical" href="https://your-domain.com/">
   
-  <!-- Redirect to React app after page is indexed (SEO-friendly) -->
+  <!-- Optional redirect to main app for users (keeps SEO indexing intact) -->
   <script>
-    // Redirect to React app after 3 seconds if JavaScript is enabled
-    // This allows crawlers to index the content while users get the better UX
-    setTimeout(() => {
-      if (window.location.pathname.includes('.html')) {
-        window.location.href = '/activity/${activity.id}';
-      }
-    }, 3000);
+    // Allow users to browse to main app if they prefer
+    // This allows crawlers to index the content while users can navigate to search
+    // No automatic redirect - users choose via the button
   </script>
   
   <!-- Structured Data for Rich Snippets -->
@@ -296,7 +292,7 @@ function generateActivityHTML(activity) {
 <body>
   <div class="static-container">
     <div class="redirect-notice">
-      📱 Pro lepší zážitek vás přesměrováváme na interaktivní verzi...
+      📱 Pro vyhledávání a filtrování použijte hlavní aplikaci!
     </div>
     
     <a href="/" class="back-link">← Zpět na všechny aktivity</a>
@@ -320,11 +316,8 @@ function generateActivityHTML(activity) {
     </div>
     
     <div class="react-links">
-      <a href="/activity/${activity.id}" class="react-link">
-        🚀 Interaktivní verze
-      </a>
       <a href="/" class="react-link">
-        🔍 Najít podobné aktivity
+        🚀 Procházet všechny aktivity
       </a>
     </div>
   </div>
@@ -337,7 +330,6 @@ async function generateSitemap(activities) {
   
   const urls = [
     'https://your-domain.com/',
-    ...activities.map(activity => `https://your-domain.com/activity/${activity.id}`),
     ...activities.map(activity => `https://your-domain.com/activities/${activity.id}.html`)
   ];
   
@@ -347,7 +339,7 @@ ${urls.map(url => `  <url>
     <loc>${url}</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>${url.includes('/activity/') ? '0.8' : '1.0'}</priority>
+    <priority>${url.endsWith('.html') ? '0.8' : '1.0'}</priority>
   </url>`).join('\n')}
 </urlset>`;
 

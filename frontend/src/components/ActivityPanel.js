@@ -510,33 +510,12 @@ const ActivityPanel = () => {
                 
                 <div className="activities-grid">
                   {paginatedActivities.map(activity => (
-                    <div key={activity.id} className="activity-wrapper">
-                      <ActivityResult 
-                        activity={activity} 
-                        showFullContent={expandedActivity === activity.id}
-                        onToggleExpand={() => handleActivityClick(activity.id)}
-                      />
-                      
-                      {/* Add permanent link for each activity */}
-                      <div className="activity-actions">
-                        <Link 
-                          to={`/activity/${activity.id}`}
-                          className="activity-permalink"
-                          onClick={() => analyticsService.trackEvent('Activity Permalink Click', 'Activity Panel', activity.title)}
-                        >
-                          📋 Zobrazit detaily
-                        </Link>
-                        <a 
-                          href={`/activities/${activity.id}.html`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="activity-static-link"
-                          onClick={() => analyticsService.trackEvent('Static Page Link Click', 'Activity Panel', activity.title)}
-                        >
-                          🔗 Statická stránka
-                        </a>
-                      </div>
-                    </div>
+                    <ActivityResult 
+                      key={activity.id}
+                      activity={activity} 
+                      showFullContent={expandedActivity === activity.id}
+                      onToggleExpand={() => handleActivityClick(activity.id)}
+                    />
                   ))}
                 </div>
                 

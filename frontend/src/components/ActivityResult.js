@@ -1,5 +1,4 @@
 import React, { useState, memo } from 'react';
-import { Link } from 'react-router-dom';
 import './ActivityResult.css';
 import analyticsService from '../services/analyticsService';
 
@@ -57,17 +56,7 @@ const ActivityResult = memo(({
         />
         <div className="activity-title-container">
           <h3 className="activity-title">
-            {isStandalonePage ? (
-              activity.title
-            ) : (
-              <Link 
-                to={`/activity/${activity.id}`} 
-                className="activity-title-link"
-                onClick={() => analyticsService.trackEvent('Activity Title Click', 'Activity Panel', activity.title)}
-              >
-                {activity.title}
-              </Link>
-            )}
+            {activity.title}
           </h3>
           <p className="activity-location">{activity.location}</p>
         </div>
@@ -106,14 +95,25 @@ const ActivityResult = memo(({
         </div>
         
         {!isStandalonePage && (
-          <button 
-            className={`activity-expand-button ${expanded || showFullContent ? 'expanded' : ''}`}
-            onClick={toggleExpand}
-            aria-expanded={expanded || showFullContent}
-            aria-label={expanded || showFullContent ? 'Zobrazit méně informací' : 'Zobrazit více informací'}
-          >
-            {expanded || showFullContent ? 'Ukaž méně' : 'Ukaž více'}
-          </button>
+          <div className="activity-actions">
+            <button 
+              className={`activity-expand-button ${expanded || showFullContent ? 'expanded' : ''}`}
+              onClick={toggleExpand}
+              aria-expanded={expanded || showFullContent}
+              aria-label={expanded || showFullContent ? 'Zobrazit méně informací' : 'Zobrazit více informací'}
+            >
+              {expanded || showFullContent ? 'Ukaž méně' : 'Ukaž více'}
+            </button>
+            <a 
+              href={`/activities/${activity.id}.html`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="activity-share-link"
+              onClick={() => analyticsService.trackEvent('Static Page Link Click', 'Activity Card', activity.title)}
+            >
+              🔗 Sdílet
+            </a>
+          </div>
         )}
       </div>
     </div>

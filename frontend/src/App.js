@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import ChatInterface from './components/ChatInterface';
 import ActivityPanel from './components/ActivityPanel';
-import ActivityPage from './components/ActivityPage';
 import analyticsService from './services/analyticsService';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -41,12 +40,6 @@ function App() {
             <Route 
               path="/test" 
               element={<div style={{padding: '2rem'}}><h1>Test route works!</h1></div>} 
-            />
-            
-            {/* Individual activity pages */}
-            <Route 
-              path="/activity/:id" 
-              element={<ActivityPage />} 
             />
           </Routes>
         </main>
