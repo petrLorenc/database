@@ -1,4 +1,5 @@
 import ReactGA from 'react-ga4';
+import { track } from '@vercel/analytics';
 
 class AnalyticsService {
   constructor() {
@@ -21,6 +22,7 @@ class AnalyticsService {
   trackPageView(path = window.location.pathname) {
     if (this.isInitialized) {
       ReactGA.send({ hitType: "pageview", page: path });
+      track(path); // Vercel Analytics
     }
   }
 
@@ -34,6 +36,7 @@ class AnalyticsService {
         value: value,
       });
     }
+    track(`${category} - ${action}`); // Vercel Analytics
   }
 
   // Specific tracking methods for common interactions

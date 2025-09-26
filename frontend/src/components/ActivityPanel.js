@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
 import './ActivityPanel.css';
 import ActivityResult from './ActivityResult';
 import analyticsService from '../services/analyticsService';
@@ -325,7 +324,13 @@ const ActivityPanel = () => {
             <div className="header-text">
               <h1>Aktivity</h1>
             </div>
-            <a href="https://budaktivni.cz" target="_blank" rel="noopener noreferrer" className="header-button">
+            <a 
+              href="https://budaktivni.cz" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="header-button"
+              onClick={() => analyticsService.trackLinkClick('https://budaktivni.cz', 'Navštívit budaktivni.cz')}
+            >
               Navštívit budaktivni.cz
             </a>
           </div>
@@ -371,7 +376,11 @@ const ActivityPanel = () => {
                 <button 
                   ref={locationButtonRef}
                   className={`filter-dropdown-toggle ${locationFiltersExpanded ? 'expanded' : ''}`}
-                  onClick={() => setLocationFiltersExpanded(!locationFiltersExpanded)}
+                  onClick={() => {
+                    const newExpanded = !locationFiltersExpanded;
+                    setLocationFiltersExpanded(newExpanded);
+                    analyticsService.trackEvent('Filter Dropdown', 'Activity Panel', `Location ${newExpanded ? 'Expanded' : 'Collapsed'}`);
+                  }}
                 >
                   <span className="filter-title">Lokalita</span>
                   <span className="filter-count">({tagCategories.location.filter(tag => selectedTags.includes(tag)).length})</span>
@@ -401,7 +410,11 @@ const ActivityPanel = () => {
                 <button 
                   ref={activityButtonRef}
                   className={`filter-dropdown-toggle ${activityFiltersExpanded ? 'expanded' : ''}`}
-                  onClick={() => setActivityFiltersExpanded(!activityFiltersExpanded)}
+                  onClick={() => {
+                    const newExpanded = !activityFiltersExpanded;
+                    setActivityFiltersExpanded(newExpanded);
+                    analyticsService.trackEvent('Filter Dropdown', 'Activity Panel', `Activity Type ${newExpanded ? 'Expanded' : 'Collapsed'}`);
+                  }}
                 >
                   <span className="filter-title">Druh aktivity</span>
                   <span className="filter-count">({tagCategories.tags.filter(tag => selectedTags.includes(tag)).length})</span>
@@ -431,7 +444,11 @@ const ActivityPanel = () => {
                 <button 
                   ref={educationButtonRef}
                   className={`filter-dropdown-toggle ${educationFiltersExpanded ? 'expanded' : ''}`}
-                  onClick={() => setEducationFiltersExpanded(!educationFiltersExpanded)}
+                  onClick={() => {
+                    const newExpanded = !educationFiltersExpanded;
+                    setEducationFiltersExpanded(newExpanded);
+                    analyticsService.trackEvent('Filter Dropdown', 'Activity Panel', `Education ${newExpanded ? 'Expanded' : 'Collapsed'}`);
+                  }}
                 >
                   <span className="filter-title">Vzdělání</span>
                   <span className="filter-count">({tagCategories.education_level.filter(tag => selectedTags.includes(tag)).length})</span>
@@ -495,7 +512,11 @@ const ActivityPanel = () => {
                 {totalPages > 1 && (
                   <div className="pagination-controls">
                     <button 
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      onClick={() => {
+                        const newPage = Math.max(1, currentPage - 1);
+                        setCurrentPage(newPage);
+                        analyticsService.trackEvent('Pagination', 'Activity Panel', `Previous Page to ${newPage}`);
+                      }}
                       disabled={currentPage === 1}
                       className="pagination-btn"
                     >
@@ -505,7 +526,11 @@ const ActivityPanel = () => {
                       Strana {currentPage} z {totalPages}
                     </span>
                     <button 
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      onClick={() => {
+                        const newPage = Math.min(totalPages, currentPage + 1);
+                        setCurrentPage(newPage);
+                        analyticsService.trackEvent('Pagination', 'Activity Panel', `Next Page to ${newPage}`);
+                      }}
                       disabled={currentPage === totalPages}
                       className="pagination-btn"
                     >
@@ -529,7 +554,11 @@ const ActivityPanel = () => {
                 {totalPages > 1 && (
                   <div className="pagination-controls">
                     <button 
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      onClick={() => {
+                        const newPage = Math.max(1, currentPage - 1);
+                        setCurrentPage(newPage);
+                        analyticsService.trackEvent('Pagination', 'Activity Panel', `Previous Page to ${newPage}`);
+                      }}
                       disabled={currentPage === 1}
                       className="pagination-btn"
                     >
@@ -539,7 +568,11 @@ const ActivityPanel = () => {
                       Strana {currentPage} z {totalPages}
                     </span>
                     <button 
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      onClick={() => {
+                        const newPage = Math.min(totalPages, currentPage + 1);
+                        setCurrentPage(newPage);
+                        analyticsService.trackEvent('Pagination', 'Activity Panel', `Next Page to ${newPage}`);
+                      }}
                       disabled={currentPage === totalPages}
                       className="pagination-btn"
                     >

@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import ChatInterface from './components/ChatInterface';
 import ActivityPanel from './components/ActivityPanel';
 import analyticsService from './services/analyticsService';
-import { Analytics } from '@vercel/analytics/react';
+
+// Component to track route changes
+function RouteTracker() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    analyticsService.trackPageView(location.pathname);
+  }, [location]);
+  
+  return null;
+}
 
 function App() {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
@@ -23,6 +33,7 @@ function App() {
 
   return (
     <Router>
+      <RouteTracker />
       <div className="app">
         <main className="app-main">
           <Routes>
@@ -35,6 +46,9 @@ function App() {
                 </div>
               } 
             />
+            
+            {/* Static HTML pages are served directly by the web server */}
+            {/* ActivityPage route removed - using static HTML at /activities/:id.html */}
             
             {/* Test route */}
             <Route 

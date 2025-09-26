@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import ActivityResult from './ActivityResult';
 import analyticsService from '../services/analyticsService';
 import logo from '../files/image.png';
@@ -8,7 +8,6 @@ import { unprotectData } from '../utils/dataProtection';
 
 const ActivityPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,7 +63,7 @@ const ActivityPage = () => {
         setActivity(foundActivity);
         
         // Track page visit
-        analyticsService.trackActivityPageView(foundActivity.title, id);
+        analyticsService.trackActivityPageView(foundActivity.id, foundActivity.title);
         
       } catch (err) {
         console.error('ActivityPage: Error loading activity:', err);
@@ -86,7 +85,11 @@ const ActivityPage = () => {
     return (
       <div className="activity-page">
         <div className="activity-page-header">
-          <Link to="/" className="header-link">
+          <Link 
+            to="/" 
+            className="header-link"
+            onClick={() => analyticsService.trackEvent('Navigation', 'Activity Page', 'Back to Activities')}
+          >
             <img src={logo} alt="Buď aktivní Logo" className="activity-page-logo" />
             <span className="back-text">← Zpět na aktivity</span>
           </Link>
@@ -107,7 +110,11 @@ const ActivityPage = () => {
     return (
       <div className="activity-page">
         <div className="activity-page-header">
-          <Link to="/" className="header-link">
+          <Link 
+            to="/" 
+            className="header-link"
+            onClick={() => analyticsService.trackEvent('Navigation', 'Activity Page', 'Back to Activities')}
+          >
             <img src={logo} alt="Buď aktivní Logo" className="activity-page-logo" />
             <span className="back-text">← Zpět na aktivity</span>
           </Link>
@@ -130,7 +137,11 @@ const ActivityPage = () => {
   return (
     <div className="activity-page">
       <div className="activity-page-header">
-        <Link to="/" className="header-link">
+        <Link 
+          to="/" 
+          className="header-link"
+          onClick={() => analyticsService.trackEvent('Navigation', 'Activity Page', 'Back to Activities')}
+        >
           <img src={logo} alt="Buď aktivní Logo" className="activity-page-logo" />
           <span className="back-text">← Zpět na aktivity</span>
         </Link>

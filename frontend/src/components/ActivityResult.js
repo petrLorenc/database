@@ -109,7 +109,6 @@ const ActivityResult = memo(({
               target="_blank"
               rel="noopener noreferrer"
               className="activity-share-link"
-              onClick={() => analyticsService.trackEvent('Static Page Link Click', 'Activity Card', activity.title)}
             >
               🔗 Sdílet
             </a>
