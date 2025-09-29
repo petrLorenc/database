@@ -1,0 +1,9 @@
+{
+  "short_name": "Buď aktivní",
+  "name": "Buď aktivní - Databáze mimoškolních aktivit",
+  "description": "Najdi aktivity na základě svých zájmů",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0084ff",
+  "background_color": "#ffffff"
+}
