@@ -16,7 +16,7 @@ from unidecode import unidecode
 LIMIT = -1  # for test purposes, -1 for all
 
 # Path to the CSV file
-csv_file_path = "database_dump_6_9_2025.csv"
+csv_file_path = "database_dump_29_9_2025.csv"
 
 
 class Case(StrEnum):
@@ -223,6 +223,7 @@ def main():
         # print(clean_json[-1])
 
     print(tags_unique)
+    print(len(clean_json))
     save_json(clean_json, tags_unique, location_unique, education_level_unique)
 
 

@@ -101,6 +101,8 @@
 .cta-button.large {
   padding: 18px 36px;
   font-size: 18px;
+  background: #7354af;
+  color: white;
 }
 
 /* Features Section */

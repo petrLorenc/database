@@ -53,7 +53,7 @@ const HomePage = () => {
             <div className="feature-card">
               <div className="feature-icon">🎯</div>
               <h3>Cílené vyhledávání</h3>
-              <p>Filtrujte aktivity podle lokality, typu a úrovně vzdělání. Najděte přesně to, co hledáte.</p>
+              <p>Filtrujte aktivity podle lokality, typu a stupně studia. Najděte přesně to, co hledáte.</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">🚀</div>
