@@ -44,16 +44,29 @@ const ActivityResult = memo(({
       )}
 
       <div className="activity-header">
-        <img 
-          src={activity.thumbnail_url} 
-          alt={activity.title}
-          className="activity-thumbnail"
-          loading="lazy"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = '/placeholder-image.jpg'; // Fallback image
-          }}
-        />
+        <div className="activity-thumbnail">
+          {activity.thumbnail_url && activity.thumbnail_url.includes('<svg') ? (
+            <div 
+              dangerouslySetInnerHTML={{ __html: activity.thumbnail_url }}
+              aria-label={activity.title}
+            />
+          ) : activity.thumbnail_url && activity.thumbnail_url.endsWith('.svg') ? (
+            <object 
+              data={activity.thumbnail_url} 
+              type="image/svg+xml"
+              alt={activity.title}
+              aria-label={activity.title}
+            >
+              <img src={activity.thumbnail_url} alt={activity.title} loading="lazy" />
+            </object>
+          ) : (
+            <img 
+              src={activity.thumbnail_url} 
+              alt={activity.title} 
+              loading="lazy"
+            />
+          )}
+        </div>
         <div className="activity-title-container">
           <h3 className="activity-title">
             {activity.title}

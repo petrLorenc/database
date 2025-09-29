@@ -131,20 +131,20 @@ function generateActivityHTML(activity) {
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://your-domain.com/activities/${activity.id}">
+  <meta property="og:url" content="https://databaze.budaktivni.cz//activities/${activity.id}">
   <meta property="og:title" content="${escapeHtml(activity.title)}">
   <meta property="og:description" content="${cleanDescription}">
   <meta property="og:image" content="${escapeHtml(activity.thumbnail_url)}">
   
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://your-domain.com/activities/${activity.id}">
+  <meta property="twitter:url" content="https://databaze.budaktivni.cz//activities/${activity.id}">
   <meta property="twitter:title" content="${escapeHtml(activity.title)}">
   <meta property="twitter:description" content="${cleanDescription}">
   <meta property="twitter:image" content="${escapeHtml(activity.thumbnail_url)}">
   
   <!-- Canonical URL points to main app for better UX -->
-  <link rel="canonical" href="https://your-domain.com/">
+  <link rel="canonical" href="https://databaze.budaktivni.cz/">
   
   <!-- Optional redirect to main app for users (keeps SEO indexing intact) -->
   <script>
@@ -166,11 +166,11 @@ function generateActivityHTML(activity) {
     },
     "image": "${escapeHtml(activity.thumbnail_url)}",
     "keywords": "${escapeHtml(allTags.join(', '))}",
-    "url": "https://your-domain.com/activity/${activity.id}",
+    "url": "https://databaze.budaktivni.cz//activity/${activity.id}",
     "organizer": {
       "@type": "Organization",
       "name": "Buď aktivní",
-      "url": "https://your-domain.com"
+      "url": "https://databaze.budaktivni.cz/"
     }
   }
   </script>
@@ -298,8 +298,9 @@ function generateActivityHTML(activity) {
     <a href="/" class="back-link">← Zpět na všechny aktivity</a>
     
     <div class="activity-header">
-      <img src="${escapeHtml(activity.thumbnail_url)}" alt="${escapeHtml(activity.title)}" class="activity-thumbnail" 
-           onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSI4IiBmaWxsPSIjMjE5NkYzIi8+CiAgPHBhdGggZD0iTTE0IDEydjI0aDhDMjYuNCAzNiAzMCAzMi40IDMwIDI4YzAtMi40LTEuMi00LjQtMy01LjZDMjguMiAyMS40IDI5IDIwLjIgMjkgMThjMC0zLjMtMi43LTYtNi02SDE0em00IDRoNGMxLjEgMCAyIC45IDIgMnMtLjkgMi0yIDJoLTRWMTZ6bTAgOGg2YzEuNyAwIDMgMS4zIDMgM3MtMS4zIDMtMyAzaC02VjI0eiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+'">
+      <div alt="${escapeHtml(activity.title)}" class="activity-thumbnail">
+        ${activity.thumbnail_url}
+      </div>
       <div>
         <h1 class="activity-title">${escapeHtml(activity.title)}</h1>
         <p class="activity-location"><strong>📍 Lokace:</strong> ${escapeHtml(activity.location || 'Česká republika')}</p>
@@ -329,8 +330,8 @@ async function generateSitemap(activities) {
   const sitemapPath = path.join(__dirname, '../build/sitemap.xml');
   
   const urls = [
-    'https://your-domain.com/',
-    ...activities.map(activity => `https://your-domain.com/activities/${activity.id}.html`)
+    'https://databaze.budaktivni.cz/',
+    ...activities.map(activity => `https://databaze.budaktivni.cz//activities/${activity.id}.html`)
   ];
   
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

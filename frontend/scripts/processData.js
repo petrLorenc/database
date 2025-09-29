@@ -16,7 +16,6 @@ async function processDataFiles() {
   // Process activities_real.json
   const activitiesPath = path.join(publicDataDir, 'activities_real.json');
   const protectedActivitiesPath = path.join(publicDataDir, 'activities_protected.json');
-  const backupActivitiesPath = path.join(publicDataDir, 'activities_real.backup.json');
   
   try {
     console.log('📊 Processing activities data...');
@@ -24,12 +23,6 @@ async function processDataFiles() {
     // Read original data
     const rawData = fs.readFileSync(activitiesPath, 'utf8');
     const activitiesData = JSON.parse(rawData);
-    
-    // Create backup of original data
-    if (!fs.existsSync(backupActivitiesPath)) {
-      fs.writeFileSync(backupActivitiesPath, rawData, 'utf8');
-      console.log('💾 Backup created at activities_real.backup.json');
-    }
     
     // Create protected version
     const protectedData = protectData(activitiesData);
@@ -40,20 +33,6 @@ async function processDataFiles() {
     console.log('✅ Activities data protected successfully');
     console.log(`   Original size: ${rawData.length} bytes`);
     console.log(`   Protected size: ${protectedData.length} bytes`);
-    
-    // Replace original with dummy/minimal version for any direct access attempts
-    const dummyData = {
-      metadata: {
-        version: "1.0.0",
-        lastUpdated: new Date().toISOString(),
-        totalActivities: 0,
-        message: "Data has been moved for security reasons. Please use the application interface."
-      },
-      activities: []
-    };
-    
-    fs.writeFileSync(activitiesPath, JSON.stringify(dummyData, null, 2), 'utf8');
-    console.log('🛡️  Original file replaced with dummy data');
 
     // Also copy unique_tags.json to ensure it's available
     const uniqueTagsPath = path.join(publicDataDir, 'unique_tags.json');

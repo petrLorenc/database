@@ -14,7 +14,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && node scripts/generateStaticPages.js",
-    "build:full": "node scripts/cleanWorkspace.js && node scripts/processData.js && react-scripts build && node scripts/generateStaticPages.js",
+    "build:full": "node scripts/processData.js && react-scripts build && node scripts/generateStaticPages.js",
     "build:dev": "react-scripts build",
     "prebuild": "echo '🚀 Starting build process...'",
     "postbuild": "echo '✅ Build completed with static pages generated!'",

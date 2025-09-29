@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
-import ChatInterface from './components/ChatInterface';
+import Navigation from './components/Navigation';
+import HomePage from './components/HomePage';
 import ActivityPanel from './components/ActivityPanel';
+import AboutPage from './components/AboutPage';
+import ChatInterface from './components/ChatInterface';
 import analyticsService from './services/analyticsService';
 
 // Component to track route changes
@@ -35,20 +38,24 @@ function App() {
     <Router>
       <RouteTracker />
       <div className="app">
+        <Navigation />
         <main className="app-main">
           <Routes>
-            {/* Main page with ActivityPanel */}
+            {/* Home page */}
+            <Route path="/" element={<HomePage />} />
+            
+            {/* Activities page */}
             <Route 
-              path="/" 
+              path="/activities" 
               element={
                 <div className="activity-section">
                   <ActivityPanel />
                 </div>
               } 
             />
-            
-            {/* Static HTML pages are served directly by the web server */}
-            {/* ActivityPage route removed - using static HTML at /activities/:id.html */}
+
+            {/* About page */}
+            <Route path="/about" element={<AboutPage />} />
             
             {/* Test route */}
             <Route 
@@ -58,10 +65,19 @@ function App() {
           </Routes>
         </main>
         
-        {/* Chat Interface - only show on main page */}
+        {/* Chat Interface - show on specific pages */}
         <Routes>
           <Route 
             path="/" 
+            element={
+              <ChatInterface 
+                isExpanded={isChatExpanded}
+                onToggleExpand={toggleChat}
+              />
+            } 
+          />
+          <Route 
+            path="/activities" 
             element={
               <ChatInterface 
                 isExpanded={isChatExpanded}

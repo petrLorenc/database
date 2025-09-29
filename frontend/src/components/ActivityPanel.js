@@ -318,52 +318,28 @@ const ActivityPanel = () => {
   if (loading) {
     return (
       <div className={`activity-panel expanded`}>
-        <div className="activity-panel-header">
-          <div className="header-content">
-            <img src={logo} alt="Buď aktivní Logo" className="activity-panel-logo" />
-            <div className="header-text">
-              <h1>Aktivity</h1>
+        <div className="activity-panel-main">
+          <div className="loading-container">
+            <div className="loading-spinner">
+              <div className="spinner"></div>
             </div>
-            <a 
-              href="https://budaktivni.cz" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="header-button"
-              onClick={() => analyticsService.trackLinkClick('https://budaktivni.cz', 'Navštívit budaktivni.cz')}
-            >
-              Navštívit budaktivni.cz
-            </a>
+            <p>Načítám aktivity...</p>
           </div>
         </div>
-        
-          <div className="activity-panel-main">
-            <div className="loading-container">
-              <div className="loading-spinner">
-                <div className="spinner"></div>
-              </div>
-              <p>Načítám aktivity...</p>
-            </div>
-          </div>
-        
       </div>
     );
   }
 
   return (
     <div className={`activity-panel expanded`}>
-      <div className="activity-panel-header">
-        <div className="header-content">
-          <img src={logo} alt="Buď aktivní Logo" className="activity-panel-logo" />
-          <div className="header-text">
-            <h1>Aktivity ({filteredActivities.length})</h1>
-            <p>Prozkoumejte všechny dostupné aktivity a najděte ty, které vás zajímají</p>
-            {totalPages > 1 && (
-              <p style={{fontSize: '14px', opacity: 0.8}}>Strana {currentPage} z {totalPages} ({paginatedActivities.length} aktivit zobrazeno)</p>
-            )}
-          </div>
-          <a href="https://budaktivni.cz" target="_blank" rel="noopener noreferrer" className="header-button">
-            Navštívit budaktivni.cz
-          </a>
+      {/* Page header with title and description */}
+      <div className="activities-page-header">
+        <div className="page-header-content">
+          <h1>Aktivity ({filteredActivities.length})</h1>
+          <p>Prozkoumejte všechny dostupné aktivity a najděte ty, které vás zajímají</p>
+          {totalPages > 1 && (
+            <p style={{fontSize: '14px', opacity: 0.8}}>Strana {currentPage} z {totalPages} ({paginatedActivities.length} aktivit zobrazeno)</p>
+          )}
         </div>
       </div>
 
