@@ -79,11 +79,11 @@ const HomePage = () => {
         <div className="stats-container">
           <div className="stats-grid">
             <div className="stat-item">
-              <div className="stat-number">500+</div>
+              <div className="stat-number">350+</div>
               <div className="stat-label">Aktivit v databázi</div>
             </div>
             <div className="stat-item">
-              <div className="stat-number">50+</div>
+              <div className="stat-number">15+</div>
               <div className="stat-label">Různých kategorií</div>
             </div>
             <div className="stat-item">

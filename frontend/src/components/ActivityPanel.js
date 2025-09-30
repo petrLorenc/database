@@ -108,11 +108,9 @@ const ActivityPanel = () => {
   useEffect(() => {
     const loadTags = async () => {
       try {
-        console.log('Loading unique tags...');
         const response = await fetch('/data/unique_tags.json');
         if (response.ok) {
           const tagsData = await response.json();
-          console.log('Tags data loaded:', tagsData);
           setTagCategories({
             location: tagsData.locations || [],
             tags: tagsData.tags || [],

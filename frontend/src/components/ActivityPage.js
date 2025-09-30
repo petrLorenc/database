@@ -59,7 +59,6 @@ const ActivityPage = () => {
           return;
         }
         
-        console.log('ActivityPage: Found activity:', foundActivity.title);
         setActivity(foundActivity);
         
         // Track page visit

@@ -100,30 +100,6 @@ const AboutPage = () => {
             </div>
           </section>
 
-          {/* Technology Section */}
-          <section className="about-section">
-            <h2>Technologie</h2>
-            <div className="section-content">
-              <p>
-                Projekt je postaven na moderních technologiích pro zajištění rychlosti, 
-                spolehlivosti a skvělého uživatelského zážitku:
-              </p>
-              <div className="tech-grid">
-                <div className="tech-item">
-                  <strong>Frontend:</strong> React.js, CSS3, Responsive Design
-                </div>
-                <div className="tech-item">
-                  <strong>Backend:</strong> AWS Lambda, Node.js, Python
-                </div>
-                <div className="tech-item">
-                  <strong>AI:</strong> OpenAI GPT pro inteligentního chatbota
-                </div>
-                <div className="tech-item">
-                  <strong>Hosting:</strong> Vercel pro rychlé načítání
-                </div>
-              </div>
-            </div>
-          </section>
 
           {/* Contact Section */}
           <section className="about-section">
@@ -134,7 +110,7 @@ const AboutPage = () => {
                 Nebo byste rádi spolupracovali na rozšíření projektu?
               </p>
               <p>
-                Navštivte hlavní webové stránky projektu pro více informací a kontaktní údaje:
+                Navštivte webové stránky koordinátorky projektu:
               </p>
               <div className="contact-actions">
                 <a 
@@ -146,13 +122,6 @@ const AboutPage = () => {
                 >
                   Navštívit helena.budaktivni.cz
                 </a>
-                <Link 
-                  to="/activities"
-                  className="contact-button secondary"
-                  onClick={() => analyticsService.trackEvent('About Page', 'Navigate', 'To Activities')}
-                >
-                  Procházet aktivity
-                </Link>
               </div>
             </div>
           </section>
