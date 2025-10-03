@@ -81,7 +81,7 @@ const ActivityPanel = () => {
   useEffect(() => {
     const loadActivities = async () => {
       try {
-        // Load protected data (this should be the only source in production)
+        // Primary: Load protected data (preferred for main app)
         const protectedResponse = await fetch('/data/activities_protected.json');
         if (protectedResponse.ok) {
           const protectedData = await protectedResponse.text();
@@ -93,10 +93,35 @@ const ActivityPanel = () => {
           setLoading(false);
           return;
         }
+
+        // Fallback: Try to load protected data from blob storage
+        const apiResponse = await fetch('/api/activities');
+        if (apiResponse.ok) {
+          const apiData = await apiResponse.json();
+          if (apiData.success && apiData.data) {
+            // Decode the protected data from blob
+            const decodedData = unprotectData(apiData.data);
+            const parsedData = typeof decodedData === 'string' ? JSON.parse(decodedData) : decodedData;
+            const activitiesArray = parsedData.activities || [];
+            if (activitiesArray.length > 0) {
+              setActivities(activitiesArray);
+              setLoading(false);
+              return;
+            }
+          }
+        }
+
+        // Final fallback: Use sample data
+        console.warn('No protected data found, using sample data');
+        setActivities(sampleActivities);
+        setError('Using sample data - no protected data available');
+        setLoading(false);
+        
       } catch (error) {
         console.error('Error loading protected activities data:', error);
-        // In production, this should not happen - protected data should always be available
-        setError('Failed to load activities data');
+        // Use sample data as ultimate fallback
+        setActivities(sampleActivities);
+        setError('Failed to load activities data - using sample data');
         setLoading(false);
       }
     };

@@ -6,6 +6,7 @@ import HomePage from './components/HomePage';
 import ActivityPanel from './components/ActivityPanel';
 import AboutPage from './components/AboutPage';
 import ChatInterface from './components/ChatInterface';
+import AdminPanel from './components/AdminPanel';
 import analyticsService from './services/analyticsService';
 
 // Component to track route changes
@@ -56,6 +57,9 @@ function App() {
 
             {/* About page */}
             <Route path="/about" element={<AboutPage />} />
+            
+            {/* Hidden Admin Panel - accessible via direct URL */}
+            <Route path="/admin-panel-secret" element={<AdminPanel />} />
             
             {/* Test route */}
             <Route 
