@@ -33,42 +33,20 @@ const AboutPage = () => {
             <h2>Naše mise</h2>
             <div className="section-content">
               <p>
-                Projekt "Buď aktivní" vznikl s cílem pomoci mladým lidem v České republice 
-                najít příležitosti pro osobní a profesní rozvoj. Věříme, že každý mladý člověk 
-                si zaslouží přístup k informacím o aktivitách, které mohou ovlivnit jeho budoucnost.
-              </p>
-              <p>
-                Naším cílem je centralizovat informace o soutěžích, stážích, vzdělávacích programech, 
-                dobrovolnických aktivitách a dalších příležitostech na jednom místě - snadno dostupném 
-                a přehledně organizovaném.
-              </p>
+              <strong>Buď aktivní</strong> je databáze studentských příležitostí a mimoškolních příležitostí pro studenty od základní po vysokou školu. Ať už jsi z Aše nebo Opavy, na základce nebo na vysoké, <strong>v databázi si určitě najdeš aktivitu, která pro tebe bude ta pravá.</strong> Databáze vznikla v roce 2018 a najdeš v ní více jak 340 aktivit od dobrovolnictví, přes výjezdy do zahraničí až po studentské soutěže. 
+</p>
+<p>
+Nezapomeň sledovat instagram Buď aktivní, kde najdeš aktuální příležitosti. 
+</p>
+<p>
+Řešíš svůj osobní rozvoj? Hledáš brigádu nebo potřebuješ pomoci s přípravou na pohovor? Neváhej se ozvat pro kariérní konzultaci. 
+</p>
+<p>
+Pro pedagogy a pracovníky s mládeží zasíláme Občasník Buď aktivní s přehledem nových aktivit a aktuálních příležitostí. Přihlaste se k jeho odběru  .
+</p>
             </div>
           </section>
 
-          {/* What We Offer Section */}
-          <section className="about-section">
-            <h2>Co nabízíme</h2>
-            <div className="section-content">
-              <div className="features-list">
-                <div className="feature-item">
-                  <h3>🎯 Cílené vyhledávání</h3>
-                  <p>Pokročilé filtry podle lokality, typu aktivity a úrovně vzdělání</p>
-                </div>
-                <div className="feature-item">
-                  <h3>💬 AI asistent</h3>
-                  <p>Inteligentní chatbot pro rychlé nalezení aktivit podle vašich zájmů</p>
-                </div>
-                <div className="feature-item">
-                  <h3>📱 Responzivní design</h3>
-                  <p>Plně funkční na všech zařízeních - počítači, tabletu i telefonu</p>
-                </div>
-                <div className="feature-item">
-                  <h3>🔄 Aktuální informace</h3>
-                  <p>Pravidelně aktualizovaná databáze s nejnovějšími příležitostmi</p>
-                </div>
-              </div>
-            </div>
-          </section>
 
           {/* How It Works Section */}
           <section className="about-section">

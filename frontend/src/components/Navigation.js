@@ -54,9 +54,9 @@ const Navigation = () => {
             target="_blank" 
             rel="noopener noreferrer" 
             className="nav-link external-link"
-            onClick={() => analyticsService.trackLinkClick('https://helena.budaktivni.cz', 'Navštívit budaktivni.cz')}
+            onClick={() => analyticsService.trackLinkClick('https://helena.budaktivni.cz', 'Kontakt')}
           >
-            Navštívit helena.budaktivni.cz
+            Kontakt
           </a>
         </div>
 

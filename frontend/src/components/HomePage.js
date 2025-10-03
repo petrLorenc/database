@@ -19,11 +19,10 @@ const HomePage = () => {
               <img src={logo} alt="Buď aktivní Logo" className="hero-logo-image" />
             </div>
             <h1 className="hero-title">
-              Vítejte v databázi aktivit pro mladé
+              Ahoj, vítej v databázi aktivit pro mladé
             </h1>
             <p className="hero-description">
-              Objevte příležitosti pro osobní a profesní rozvoj. Najděte aktivity, 
-              soutěže, stáže a vzdělávací programy určené speciálně pro mladé lidi v České republice.
+              Objev příležitosti pro osobní a profesní rozvoj - dobrovolnictví, soutěže, stipendia nebo výjezdy do zahraničí a další vzdělávací program v České republice i zahraničí.
             </p>
             <div className="hero-actions">
               <Link 
@@ -31,14 +30,14 @@ const HomePage = () => {
                 className="cta-button primary"
                 onClick={() => handleCTAClick('View Activities')}
               >
-                Prozkoumat aktivity
+                Prozkoumej aktivity
               </Link>
               <Link 
                 to="/about" 
                 className="cta-button secondary"
                 onClick={() => handleCTAClick('Learn More')}
               >
-                Více o projektu
+                Zjisti více o projektu
               </Link>
             </div>
           </div>
@@ -53,7 +52,7 @@ const HomePage = () => {
             <div className="feature-card">
               <div className="feature-icon">🎯</div>
               <h3>Cílené vyhledávání</h3>
-              <p>Filtrujte aktivity podle lokality, typu a stupně studia. Najděte přesně to, co hledáte.</p>
+              <p>Filtruj aktivity podle lokality, typu a stupně studia. Najděte přesně to, co hledáte.</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">🚀</div>
@@ -68,7 +67,7 @@ const HomePage = () => {
             <div className="feature-card">
               <div className="feature-icon">💬</div>
               <h3>AI asistent</h3>
-              <p>Využijte inteligentního chatbota pro rychlé nalezení aktivit podle vašich zájmů.</p>
+              <p>Využij inteligentního chatbota pro rychlé nalezení aktivit podle vašich zájmů.</p>
             </div>
           </div>
         </div>
@@ -97,8 +96,8 @@ const HomePage = () => {
       {/* CTA Section */}
       <section className="cta-section">
         <div className="cta-container">
-          <h2>Začněte objevovat již dnes</h2>
-          <p>Neváhejte a prohlédněte si všechny dostupné aktivity. Váš další krok k rozvoju je jen klik daleko.</p>
+          <h2>Začni objevovat již dnes</h2>
+          <p>Neváhej a prohlédni si všechny dostupné aktivity. Váš další krok k rozvoji je jen klik daleko.</p>
           <Link 
             to="/activities" 
             className="cta-button primary large"
@@ -106,6 +105,20 @@ const HomePage = () => {
           >
             Začít procházet aktivity
           </Link>
+        </div>
+      </section>
+
+      <section className="newsletter-section">
+        <div className="cta-container">
+          <h2>Jsi pedagog?</h2>
+          <p>Přihlaš se k našemu newsletteru a získej nejnovější informace o aktivitách a zdrojích pro pedagogy.</p>
+          <a 
+            href="https://budaktivni.us16.list-manage.com/subscribe?u=3881985dfb31b1cd899eb1789&id=da54e52f98" 
+            className="cta-button primary large"
+            onClick={() => handleCTAClick('Newsletter Signup')}
+          >
+            Newsletter pro pedagogy
+          </a>
         </div>
       </section>
     </div>

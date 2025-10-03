@@ -424,7 +424,7 @@ const ActivityPanel = () => {
                     analyticsService.trackEvent('Filter Dropdown', 'Activity Panel', `Education ${newExpanded ? 'Expanded' : 'Collapsed'}`);
                   }}
                 >
-                  <span className="filter-title">Vzdělání</span>
+                  <span className="filter-title">Stupeň studia</span>
                   <span className="filter-count">({tagCategories.education_level.filter(tag => selectedTags.includes(tag)).length})</span>
                   <span className="dropdown-arrow">{educationFiltersExpanded ? '▲' : '▼'}</span>
                 </button>
