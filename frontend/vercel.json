@@ -10,7 +10,7 @@
       "permanent": true
     },
     {
-      "source": "/databaze/*",
+      "source": "/databaze/*", 
       "destination": "/",
       "permanent": true
     },
