@@ -7,6 +7,7 @@ import ActivityPanel from './components/ActivityPanel';
 import AboutPage from './components/AboutPage';
 import ChatInterface from './components/ChatInterface';
 import analyticsService from './services/analyticsService';
+import { Analytics } from '@vercel/analytics/next';
 
 // Component to track route changes
 function RouteTracker() {
@@ -90,6 +91,7 @@ function App() {
         <footer className="app-footer">
           <p>&copy; {new Date().getFullYear()} Buď aktivní - Chatbot | Využívá AI</p>
         </footer>
+        <Analytics />
       </div>
     </Router>
   );
