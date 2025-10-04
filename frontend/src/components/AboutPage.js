@@ -56,22 +56,22 @@ Pro pedagogy a pracovníky s mládeží zasíláme Občasník Buď aktivní s p�
                 <div className="step-item">
                   <div className="step-number">1</div>
                   <div className="step-content">
-                    <h3>Procházejte aktivity</h3>
-                    <p>Použijte vyhledávání nebo filtry k nalezení aktivit, které vás zajímají</p>
+                    <h3>Procházej aktivity</h3>
+                    <p>Použij vyhledávání nebo filtry k nalezení aktivit, které tě zajímají</p>
                   </div>
                 </div>
                 <div className="step-item">
                   <div className="step-number">2</div>
                   <div className="step-content">
-                    <h3>Získejte detaily</h3>
-                    <p>Klikněte na aktivitu pro zobrazení všech důležitých informací</p>
+                    <h3>Získej detaily</h3>
+                    <p>Klikni na aktivitu pro zobrazení všech důležitých informací</p>
                   </div>
                 </div>
                 <div className="step-item">
                   <div className="step-number">3</div>
                   <div className="step-content">
-                    <h3>Zapojte se</h3>
-                    <p>Následujte odkazy na oficiální stránky organizátorů a přihlaste se</p>
+                    <h3>Zapoj se</h3>
+                    <p>Následuj odkazy na oficiální stránky organizátorů a přihlas se</p>
                   </div>
                 </div>
               </div>
@@ -84,11 +84,11 @@ Pro pedagogy a pracovníky s mládeží zasíláme Občasník Buď aktivní s p�
             <h2>Kontakt a spolupráce</h2>
             <div className="section-content">
               <p>
-                Máte návrh na zlepšení? Znáte aktivitu, která v naší databázi chybí? 
-                Nebo byste rádi spolupracovali na rozšíření projektu?
+                Máš návrh na zlepšení? Znáš aktivitu, která v naší databázi chybí? 
+                Nebo bys rád spolupracoval na rozšíření projektu?
               </p>
               <p>
-                Navštivte webové stránky koordinátorky projektu:
+                Navštiv webové stránky koordinátorky projektu:
               </p>
               <div className="contact-actions">
                 <a 

@@ -19,10 +19,10 @@ const HomePage = () => {
               <img src={logo} alt="Buď aktivní Logo" className="hero-logo-image" />
             </div>
             <h1 className="hero-title">
-              Ahoj, vítej v databázi aktivit pro mladé
+              Ahoj, vítej v databázi mimoškolních aktivit
             </h1>
             <p className="hero-description">
-              Objev příležitosti pro osobní a profesní rozvoj - dobrovolnictví, soutěže, stipendia nebo výjezdy do zahraničí a další vzdělávací program v České republice i zahraničí.
+              Objev příležitosti pro osobní a profesní rozvoj - dobrovolnictví, soutěže, stipendia nebo výjezdy do zahraničí a další vzdělávací programy v České republice i zahraničí.
             </p>
             <div className="hero-actions">
               <Link 
@@ -97,7 +97,7 @@ const HomePage = () => {
       <section className="cta-section">
         <div className="cta-container">
           <h2>Začni objevovat již dnes</h2>
-          <p>Neváhej a prohlédni si všechny dostupné aktivity. Váš další krok k rozvoji je jen klik daleko.</p>
+          <p>Neváhej a prohlédni si všechny dostupné aktivity.</p>
           <Link 
             to="/activities" 
             className="cta-button primary large"
@@ -110,8 +110,8 @@ const HomePage = () => {
 
       <section className="newsletter-section">
         <div className="cta-container">
-          <h2>Jsi pedagog?</h2>
-          <p>Přihlaš se k našemu newsletteru a získej nejnovější informace o aktivitách a zdrojích pro pedagogy.</p>
+          <h2>Jste pedagog?</h2>
+          <p>Přihlaste se k našemu newsletteru a získejte nejnovější informace o aktivitách a zdrojích pro pedagogy.</p>
           <a 
             href="https://budaktivni.us16.list-manage.com/subscribe?u=3881985dfb31b1cd899eb1789&id=da54e52f98" 
             className="cta-button primary large"
