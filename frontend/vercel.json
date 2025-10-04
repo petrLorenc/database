@@ -3,6 +3,48 @@
   "outputDirectory": "build",
   "installCommand": "npm install",
   "framework": null,
+  "redirects": [
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/databaze/*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/predstaveni/*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/bud-aktivni-v-mediich_clanky_rozhovory/*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/produkt/:path*",
+      "destination": "/aktivity",
+      "permanent": true
+    },
+    {
+      "source": "/jsem-ucitel/*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/be-active/*",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/aktivity/([0-9]+)\\.html$",
@@ -24,7 +66,7 @@
       ]
     },
     {
-      "source": "/activities/(.*)\\.html$",
+      "source": "/aktivity/(.*)\\.html$",
       "headers": [
         {
           "key": "Cache-Control",
