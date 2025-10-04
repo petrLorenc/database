@@ -118,7 +118,7 @@ const ActivityResult = memo(({
               {expanded || showFullContent ? 'Ukaž méně' : 'Ukaž více'}
             </button>
             <a 
-              href={`/activities/${activity.id}.html`}
+              href={`/aktivity/${activity.id}.html`}
               target="_blank"
               rel="noopener noreferrer"
               className="activity-share-link"

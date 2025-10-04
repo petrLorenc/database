@@ -5,12 +5,12 @@
   "framework": null,
   "rewrites": [
     {
-      "source": "/activities/([0-9]+)\\.html$",
-      "destination": "/activities/$1.html"
+      "source": "/aktivity/([0-9]+)\\.html$",
+      "destination": "/aktivity/$1.html"
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/"
     }
   ],
   "headers": [

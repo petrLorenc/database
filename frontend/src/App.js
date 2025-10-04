@@ -46,7 +46,7 @@ function App() {
             
             {/* Activities page */}
             <Route 
-              path="/activities" 
+              path="/aktivity" 
               element={
                 <div className="activity-section">
                   <ActivityPanel />
@@ -77,7 +77,7 @@ function App() {
             } 
           />
           <Route 
-            path="/activities" 
+            path="/aktivity" 
             element={
               <ChatInterface 
                 isExpanded={isChatExpanded}

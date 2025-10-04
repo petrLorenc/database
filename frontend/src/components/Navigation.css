@@ -4,8 +4,12 @@
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 99999;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .nav-container {
@@ -16,12 +20,16 @@
   align-items: center;
   justify-content: space-between;
   height: 70px;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .nav-brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
 .nav-logo {
@@ -97,17 +105,30 @@
   padding: 10px;
   border-radius: 6px;
   transition: background-color 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-mobile-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  /* Prevent body scroll when menu is open */
+  body.nav-menu-open {
+    overflow: hidden;
+  }
+  
   .nav-container {
     height: 60px;
     padding: 0 16px;
+    position: relative;
   }
 
   .nav-logo {
@@ -119,23 +140,84 @@
     font-size: 20px;
   }
 
+  .nav-mobile-toggle {
+    display: flex;
+    z-index: 99998;
+    position: relative;
+  }
+
+  /* Mobile menu backdrop */
+  .nav-menu::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .nav-menu.mobile-open::before {
+    opacity: 1;
+  }
+
+  /* Mobile menu dropdown */
   .nav-menu {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    flex-direction: column;
     gap: 0;
+    padding: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 99997;
+    backdrop-filter: blur(5px);
+    border-radius: 0 0 12px 12px;
+    isolation: isolate;
+  }
+
+  .nav-menu.mobile-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 
   .nav-link {
-    padding: 8px 12px;
-    font-size: 14px;
-    margin-left: 4px;
-  }
-
-  .nav-mobile-toggle {
+    padding: 16px 20px;
+    font-size: 16px;
+    margin-left: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    border-radius: 0;
+    text-align: left;
+    width: 100%;
     display: block;
+    transition: background-color 0.3s ease;
   }
 
-  /* Hidden for now - can implement dropdown mobile menu later */
-  .nav-menu {
-    display: none;
+  .nav-link:last-child {
+    border-bottom: none;
+  }
+
+  .nav-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: none;
+    box-shadow: none;
+  }
+
+  .nav-link.active {
+    background: rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -152,6 +234,86 @@
   .nav-logo {
     width: 28px;
     height: 28px;
+  }
+
+  .nav-link {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .nav-mobile-toggle {
+    font-size: 20px;
+    padding: 8px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+  
+  .nav-menu {
+    top: 56px;
+  }
+}
+
+@media (max-width: 320px) {
+  .nav-container {
+    height: 52px;
+    padding: 0 10px;
+  }
+
+  .nav-brand-text {
+    font-size: 16px;
+  }
+
+  .nav-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .nav-link {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .nav-mobile-toggle {
+    font-size: 18px;
+    padding: 6px;
+    min-width: 36px;
+    min-height: 36px;
+    flex-shrink: 0;
+  }
+  
+  .nav-menu {
+    top: 52px;
+  }
+}
+
+/* Comprehensive overflow prevention */
+@media (max-width: 1200px) {
+  .main-navigation,
+  .nav-container,
+  .nav-menu {
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+}
+
+/* Landscape orientation support */
+@media (max-height: 600px) and (orientation: landscape) and (max-width: 768px) {
+  .nav-container {
+    height: 50px;
+  }
+  
+  .nav-mobile-toggle {
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 16px;
+    padding: 6px;
+  }
+  
+  .nav-menu {
+    top: 50px;
+    max-height: calc(100vh - 50px);
+    overflow-y: auto;
   }
 }
 

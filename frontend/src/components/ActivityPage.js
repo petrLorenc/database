@@ -156,7 +156,7 @@ const ActivityPage = () => {
           
           <div className="activity-page-actions">
             <a 
-              href={`/activities/${activity.id}.html`}
+              href={`/aktivity/${activity.id}.html`}
               target="_blank"
               rel="noopener noreferrer"
               className="static-page-link"

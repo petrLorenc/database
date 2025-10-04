@@ -3,6 +3,7 @@
   top: 0;
   right: 0;
   width: 100%;
+  max-width: 100%;
   height: auto;
   min-height: calc(100vh - 200px);
   background: white;
@@ -12,20 +13,22 @@
   z-index: 100;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
-  overflow: visible;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   opacity: 1;
   visibility: visible;
   box-sizing: border-box;
-  margin: 20px;
+  margin: 10px;
 }
 
 .activity-panel.expanded {
-  width: calc(100% - 40px);
+  width: calc(100% - 20px);
+  max-width: calc(100vw - 20px);
   background: white;
   color: #333;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+  overflow-x: hidden;
 }
 
 /* New page header styles */
@@ -367,7 +370,9 @@
 .search-section-right .search-input-container {
   position: relative;
   margin-bottom: 0;
-  min-width: 350px;
+  min-width: 200px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .search-section-right .search-input {
@@ -505,13 +510,14 @@
 .activities-list {
   flex: 1;
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: hidden;
   padding: 24px;
   background: #f8f9fa;
   min-height: 0;
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.3s ease 0.4s;
+  box-sizing: border-box;
 }
 
 .activity-panel.expanded .activities-list {
@@ -774,10 +780,12 @@
   .activity-panel {
     min-height: calc(100vh - 180px);
     border-radius: 12px;
+    margin: 5px;
   }
   
   .activity-panel.expanded {
-    width: 350px;
+    width: calc(100% - 10px);
+    max-width: calc(100vw - 10px);
   }
 
   .activities-grid {
@@ -796,21 +804,41 @@
   }
 }
 
+@media (max-width: 1024px) and (min-width: 769px) {
+  .activity-panel {
+    margin: 5px;
+  }
+  
+  .activity-panel.expanded {
+    width: calc(100% - 10px);
+    max-width: calc(100vw - 10px);
+  }
+  
+  .activities-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+}
+
 @media (max-width: 768px) {
   .activity-panel {
     width: 100%;
     min-height: calc(100vh - 160px);
     border-radius: 10px;
-    margin-right: 0;
+    margin: 0;
+    left: 0;
+    right: 0;
   }
   
   .activity-panel.expanded {
     width: 100%;
-    position: relative; /* Remove fixed positioning that can cause overflow */
-    left: auto;
-    top: auto;
-    z-index: 100; /* Lower z-index to not conflict with chat */
+    position: relative;
+    left: 0;
+    top: 0;
+    z-index: 100;
     max-width: 100%;
+    margin: 0;
+    transform: none;
   }
   
   .activity-panel-header h1 {
@@ -866,9 +894,10 @@
   
   .filter-dropdown {
     max-height: 160px;
-    left: -2px;
-    right: -2px;
-    min-width: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    min-width: 100%;
+    box-sizing: border-box;
   }
   
   .search-section-right .search-input {
@@ -920,15 +949,37 @@
   .activity-panel {
     min-height: calc(100vh - 120px);
     border-radius: 6px;
+    margin: 0;
+    width: 100%;
+  }
+  
+  .activity-panel.expanded {
+    width: 100%;
+    margin: 0;
+    left: 0;
+    right: 0;
   }
   
   .activities-grid {
-    grid-template-columns: 1fr; /* Single column on very small screens */
+    grid-template-columns: 1fr;
     gap: 12px;
   }
   
   .activity-card {
-    min-height: 160px; /* Reduce minimum height */
+    min-height: 160px;
+    margin: 0;
+  }
+  
+  .activities-page-header {
+    padding: 20px 15px;
+  }
+  
+  .page-header-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .page-header-content p {
+    font-size: 1rem;
   }
 }
 
@@ -976,9 +1027,9 @@
   
   .search-section-right .search-input-container {
     min-width: auto;
-    max-width: none;
+    max-width: 100%;
     flex: 1;
-    margin-right: 16px;
+    margin-right: 10px;
   }
   
   .filters-section {
@@ -987,7 +1038,7 @@
   }
   
   .filter-dropdown-toggle {
-    min-width: 120px;
+    min-width: 100%;
     font-size: 14px;
     padding: 10px 16px;
     height: 44px;
@@ -1016,6 +1067,10 @@
   
   .search-section-right .search-input-container {
     margin-right: 0;
+    margin-left: 0;
+    min-width: auto;
+    max-width: 100%;
+    flex: 1;
   }
   
   .filters-section {
@@ -1023,7 +1078,7 @@
   }
   
   .filter-dropdown-toggle {
-    min-width: 110px;
+    min-width: 100%;
     font-size: 13px;
     padding: 9px 14px;
     height: 42px;
@@ -1167,9 +1222,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  margin: 20px 0;
-  padding: 20px;
+  gap: 15px;
+  margin: 15px 0;
+  padding: 15px 10px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .pagination-btn {
@@ -1202,17 +1260,82 @@
 /* Mobile pagination adjustments */
 @media (max-width: 768px) {
   .pagination-controls {
-    gap: 15px;
-    margin: 15px 0;
-    padding: 15px;
+    gap: 10px;
+    margin: 10px 0;
+    padding: 10px 5px;
+    flex-wrap: wrap;
   }
   
   .pagination-btn {
-    padding: 8px 16px;
-    font-size: 13px;
+    padding: 6px 12px;
+    font-size: 12px;
+    flex-shrink: 0;
   }
   
   .pagination-info {
-    font-size: 14px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination-controls {
+    gap: 8px;
+    margin: 8px 0;
+    padding: 8px 2px;
+    flex-direction: column;
+  }
+  
+  .pagination-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+    min-width: 80px;
+  }
+  
+  .pagination-info {
+    font-size: 12px;
+    order: -1;
+  }
+}
+
+/* Global overflow prevention for all screen sizes */
+@media (max-width: 1200px) {
+  .activity-panel,
+  .activity-panel *,
+  .activities-page-header,
+  .page-header-content,
+  .filter-search-bar,
+  .activities-list,
+  .activities-grid,
+  .activity-card,
+  .pagination-controls,
+  .pagination-btn,
+  .filter-dropdown {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .activities-list {
+    overflow-x: hidden;
+  }
+  
+  .filter-dropdown {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .pagination-controls {
+    overflow-x: hidden;
+  }
+  
+  /* Override any problematic min-widths on small screens */
+  .search-section-right .search-input-container {
+    min-width: auto !important;
+    max-width: 100%;
+  }
+  
+  .filter-dropdown {
+    min-width: auto !important;
+    max-width: 100%;
   }
 }

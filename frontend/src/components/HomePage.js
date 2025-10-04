@@ -26,7 +26,7 @@ const HomePage = () => {
             </p>
             <div className="hero-actions">
               <Link 
-                to="/activities" 
+                to="/aktivity" 
                 className="cta-button primary"
                 onClick={() => handleCTAClick('View Activities')}
               >
@@ -99,7 +99,7 @@ const HomePage = () => {
           <h2>Začni objevovat již dnes</h2>
           <p>Neváhej a prohlédni si všechny dostupné aktivity.</p>
           <Link 
-            to="/activities" 
+            to="/aktivity" 
             className="cta-button primary large"
             onClick={() => handleCTAClick('Get Started')}
           >

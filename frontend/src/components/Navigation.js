@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Navigation.css';
 import logo from '../files/image.png';
@@ -6,9 +6,46 @@ import analyticsService from '../services/analyticsService';
 
 const Navigation = () => {
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Manage body class for preventing scroll when menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.classList.add('nav-menu-open');
+    } else {
+      document.body.classList.remove('nav-menu-open');
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('nav-menu-open');
+    };
+  }, [isMobileMenuOpen]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileMenuOpen && !event.target.closest('.main-navigation')) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
 
   const handleLinkClick = (page) => {
     analyticsService.trackEvent('Navigation', 'Click', page);
+    setIsMobileMenuOpen(false); // Close mobile menu when link is clicked
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   return (
@@ -27,7 +64,7 @@ const Navigation = () => {
         </div>
 
         {/* Navigation menu */}
-        <div className="nav-menu">
+        <div className={`nav-menu ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           <Link 
             to="/" 
             className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
@@ -36,8 +73,8 @@ const Navigation = () => {
             Domů
           </Link>
           <Link 
-            to="/activities" 
-            className={`nav-link ${location.pathname === '/activities' ? 'active' : ''}`}
+            to="/aktivity" 
+            className={`nav-link ${location.pathname === '/aktivity' ? 'active' : ''}`}
             onClick={() => handleLinkClick('Activities')}
           >
             Aktivity
@@ -54,15 +91,18 @@ const Navigation = () => {
             target="_blank" 
             rel="noopener noreferrer" 
             className="nav-link external-link"
-            onClick={() => analyticsService.trackLinkClick('https://helena.budaktivni.cz', 'Kontakt')}
+            onClick={() => {
+              analyticsService.trackLinkClick('https://helena.budaktivni.cz', 'Kontakt');
+              setIsMobileMenuOpen(false);
+            }}
           >
             Kontakt
           </a>
         </div>
 
-        {/* Mobile menu button (for future mobile implementation) */}
-        <div className="nav-mobile-toggle">
-          ☰
+        {/* Mobile menu button */}
+        <div className="nav-mobile-toggle" onClick={toggleMobileMenu}>
+          {isMobileMenuOpen ? '✕' : '☰'}
         </div>
       </div>
     </nav>

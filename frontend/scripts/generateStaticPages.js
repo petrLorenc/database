@@ -64,7 +64,7 @@ async function generateStaticPages() {
     }
     
     // Create activities directory
-    const staticDir = path.join(__dirname, '../build/activities');
+    const staticDir = path.join(__dirname, '../build/aktivity');
     if (!fs.existsSync(staticDir)) {
       fs.mkdirSync(staticDir, { recursive: true });
       console.log('📁 Created activities directory:', staticDir);
@@ -75,7 +75,7 @@ async function generateStaticPages() {
       const html = generateActivityHTML(activity);
       const filePath = path.join(staticDir, `${activity.id}.html`);
       fs.writeFileSync(filePath, html, 'utf8');
-      console.log(`✅ Generated: /activities/${activity.id}.html`);
+      console.log(`✅ Generated: /aktivity/${activity.id}.html`);
     }
     
     // Generate sitemap for better SEO
@@ -131,14 +131,14 @@ function generateActivityHTML(activity) {
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://databaze.budaktivni.cz//activities/${activity.id}">
+  <meta property="og:url" content="https://databaze.budaktivni.cz//aktivity/${activity.id}">
   <meta property="og:title" content="${escapeHtml(activity.title)}">
   <meta property="og:description" content="${cleanDescription}">
   <meta property="og:image" content="${escapeHtml(activity.thumbnail_url)}">
   
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://databaze.budaktivni.cz//activities/${activity.id}">
+  <meta property="twitter:url" content="https://databaze.budaktivni.cz//aktivity/${activity.id}">
   <meta property="twitter:title" content="${escapeHtml(activity.title)}">
   <meta property="twitter:description" content="${cleanDescription}">
   <meta property="twitter:image" content="${escapeHtml(activity.thumbnail_url)}">
@@ -317,7 +317,7 @@ function generateActivityHTML(activity) {
     </div>
     
     <div class="react-links">
-      <a href="/" class="react-link">
+      <a href="/aktivity" class="react-link">
         🚀 Procházet všechny aktivity
       </a>
     </div>
@@ -330,8 +330,8 @@ async function generateSitemap(activities) {
   const sitemapPath = path.join(__dirname, '../build/sitemap.xml');
   
   const urls = [
-    'https://databaze.budaktivni.cz/',
-    ...activities.map(activity => `https://databaze.budaktivni.cz//activities/${activity.id}.html`)
+    'https://budaktivni.cz/',
+    ...activities.map(activity => `https://budaktivni.cz//aktivity/${activity.id}.html`)
   ];
   
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

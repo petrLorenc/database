@@ -252,6 +252,18 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .about-page {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .about-header-container,
+  .about-container {
+    padding: 0 15px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
   .about-header h1 {
     font-size: 2rem;
   }
