@@ -7,7 +7,7 @@ import ActivityPanel from './components/ActivityPanel';
 import AboutPage from './components/AboutPage';
 import ChatInterface from './components/ChatInterface';
 import analyticsService from './services/analyticsService';
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics } from '@vercel/analytics/react';
 
 // Component to track route changes
 function RouteTracker() {
