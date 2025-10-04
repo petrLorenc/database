@@ -10,37 +10,37 @@
       "permanent": true
     },
     {
-      "source": "/databaze/.*", 
+      "source": "/databaze/(.*)", 
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/predstaveni/.*",
+      "source": "/predstaveni/(.*)",
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/blog/.*",
+      "source": "/blog/(.*)",
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/bud-aktivni-v-mediich_clanky_rozhovory/.*",
+      "source": "/bud-aktivni-v-mediich_clanky_rozhovory/(.*)",
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/produkt/.*",
+      "source": "/produkt/(.*)",
       "destination": "/aktivity",
       "permanent": true
     },
     {
-      "source": "/jsem-ucitel/.*",
+      "source": "/jsem-ucitel/(.*)",
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/be-active/.*",
+      "source": "/be-active/(.*)",
       "destination": "/",
       "permanent": true
     }
