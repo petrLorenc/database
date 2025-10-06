@@ -19,7 +19,7 @@ const HomePage = () => {
               <img src={logo} alt="Buď aktivní Logo" className="hero-logo-image" />
             </div>
             <h1 className="hero-title">
-              Ahoj, vítej v databázi mimoškolních aktivit
+              Ahoj, vítej v databázi studentských příležitostí
             </h1>
             <p className="hero-description">
               Objev příležitosti pro osobní a profesní rozvoj - dobrovolnictví, soutěže, stipendia nebo výjezdy do zahraničí a další vzdělávací programy v České republice i zahraničí.
