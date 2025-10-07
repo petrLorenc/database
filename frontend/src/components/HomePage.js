@@ -39,6 +39,7 @@ const HomePage = () => {
               >
                 Zjisti více o projektu
               </Link>
+              <a class="cta-button secondary" href="https://www.instagram.com/budaktivni/" data-discover="true">Sleduj nás na IG</a> 
             </div>
           </div>
         </div>
